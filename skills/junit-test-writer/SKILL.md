@@ -1,11 +1,36 @@
 ---
 name: junit-test-writer
-description: JUnit 5 테스트 코드 작성 스킬. 단위 테스트, 슬라이스 테스트(@WebMvcTest, @DataJpaTest), 통합 테스트(@SpringBootTest)를 작성한다. "테스트 코드 작성해줘", "~에 대한 테스트 만들어줘", "단위 테스트 추가해줘" 같은 요청에 사용.
+description: Write JUnit 5 tests for Spring Boot projects. Supports unit tests, slice tests (@WebMvcTest, @DataJpaTest), and integration tests (@SpringBootTest). Use for requests like "write tests", "add unit tests", "테스트 코드 작성해줘", "~에 대한 테스트 만들어줘".
 ---
 
 # JUnit Test Writer
 
 JUnit 5 기반 테스트 코드를 작성하는 스킬.
+
+## 테스트 범위 선택
+
+테스트 작성 전 AskUserQuestion으로 범위를 확인한다:
+
+| 범위 | 설명 | 속도 |
+|------|------|------|
+| **Unit** | 단일 클래스, Mock 사용, Spring Context 없음 | 빠름 |
+| **Slice** | 특정 레이어만 (@WebMvcTest, @DataJpaTest) | 중간 |
+| **Integration** | 전체 Context (@SpringBootTest) | 느림 |
+| **All** | 대상에 따라 적절한 유형 자동 선택 | - |
+
+```
+AskUserQuestion:
+question: "어떤 테스트를 작성할까요?"
+options:
+  - label: "Unit (Recommended)"
+    description: "Mock 기반 단위 테스트, 가장 빠름"
+  - label: "Slice"
+    description: "Controller는 @WebMvcTest, Repository는 @DataJpaTest"
+  - label: "Integration"
+    description: "@SpringBootTest 전체 통합 테스트"
+  - label: "All"
+    description: "대상 클래스에 맞는 테스트 유형 자동 선택"
+```
 
 ## 테스트 작성 워크플로우
 
@@ -174,4 +199,29 @@ class OrderIntegrationTest {
 | Assertion    | AssertJ 사용 (`assertThat`)             |
 | Mock         | BDDMockito 사용 (`given`, `willReturn`) |
 
-상세 컨벤션은 `references/conventions.md` 참조.
+## 테스트 품질 기준
+
+작성된 테스트가 아래 기준을 충족하는지 확인:
+
+| 기준 | 체크 항목 | 필수 |
+|------|-----------|------|
+| **커버리지** | 모든 public 메서드에 최소 1개 테스트 | Yes |
+| **경계값** | null, 빈 값, 최대/최소값 케이스 포함 | Yes |
+| **예외 케이스** | 예상되는 예외 상황 테스트 | Yes |
+| **독립성** | 테스트 간 순서 의존성 없음 | Yes |
+| **명확성** | 실패 시 원인 파악 가능한 assertion 메시지 | No |
+| **속도** | 단위 테스트 100ms 이내, 통합 테스트 3s 이내 | No |
+
+### 필수 테스트 케이스 패턴
+
+```
+메서드당 최소 테스트:
+1. Happy Path - 정상 동작
+2. Edge Case - 경계값 (null, empty, max)
+3. Error Case - 예외 상황
+```
+
+## 참조 자료
+
+- **컨벤션 상세**: `references/conventions.md`
+- **테스트 예시**: `examples/OrderServiceTest.java`
