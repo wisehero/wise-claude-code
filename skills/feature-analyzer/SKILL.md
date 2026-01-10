@@ -1,11 +1,33 @@
 ---
 name: feature-analyzer
-description: 프로젝트 기능 분석 스킬. 특정 기능의 전체 구조(숲)와 세부 구현(나무)을 분석하여 Mermaid 다이어그램이 포함된 통합 마크다운 분석서를 생성한다. "~기능 분석해줘", "~의 전체 흐름 파악해줘", "~가 어떻게 동작하는지 문서로 정리해줘" 같은 요청에 사용.
+description: Analyze project features and generate comprehensive documentation with Mermaid diagrams. Use for requests like "analyze this feature", "document the flow", "~기능 분석해줘", "~의 전체 흐름 파악해줘", "이 기능 어떻게 동작해?".
 ---
 
 # Feature Analyzer
 
 프로젝트 기능을 분석하여 통합 마크다운 분석서를 생성하는 스킬.
+
+## 분석 레벨
+
+분석 시작 전 AskUserQuestion으로 레벨을 확인한다:
+
+| 레벨 | 포함 내용 | 예상 산출물 |
+|------|-----------|-------------|
+| **Quick** | 아키텍처 개요 + 호출 흐름 | 1-2페이지 요약 |
+| **Standard** | + 구성 요소 + 의존성 | 3-5페이지 분석서 |
+| **Deep** | + 유즈케이스 + 데이터 구조 + 기술 부채 | 전체 분석서 |
+
+```
+AskUserQuestion:
+question: "분석 깊이를 선택해주세요"
+options:
+  - label: "Quick"
+    description: "아키텍처와 호출 흐름만 빠르게 파악"
+  - label: "Standard (Recommended)"
+    description: "구성 요소와 의존성까지 분석"
+  - label: "Deep"
+    description: "유즈케이스, 데이터 구조, 기술 부채까지 전체 분석"
+```
 
 ## 분석 워크플로우
 
@@ -53,14 +75,20 @@ description: 프로젝트 기능 분석 스킬. 특정 기능의 전체 구조(�
 - 도메인 엔티티
 - DB 테이블 매핑
 
-### 6. 기술 부채 식별
+### 6. 기술 부채 식별 (Deep 레벨만)
 
-분석 중 발견한 개선점 기록:
+분석 중 발견한 개선점을 아래 기준으로 기록:
 
-- 복잡도가 높은 메서드
-- 중복 코드
-- 누락된 예외 처리
-- 테스트 커버리지 부족
+| 카테고리 | 탐지 기준 | 심각도 |
+|----------|-----------|--------|
+| **긴 메서드** | 50줄 초과 | Medium |
+| **많은 파라미터** | 5개 초과 | Low |
+| **깊은 중첩** | 3단계 이상 if/for 중첩 | Medium |
+| **God Class** | 10개 이상 의존성 주입 | High |
+| **중복 코드** | 유사 로직 3곳 이상 반복 | Medium |
+| **누락된 예외 처리** | catch 없는 외부 호출 | High |
+| **하드코딩** | 매직 넘버, 문자열 상수 | Low |
+| **테스트 부재** | public 메서드에 테스트 없음 | Medium |
 
 ## 산출물 템플릿
 
@@ -192,6 +220,7 @@ erDiagram
     }
 ```
 
-## 프레임워크별 가이드
+## 참조 자료
 
-Spring Boot 프로젝트 분석 시 `references/spring-boot-guide.md` 참조.
+- **Spring Boot 가이드**: `references/spring-boot-guide.md`
+- **분석서 예시**: `examples/order-feature-analysis.md` (Standard 레벨)
