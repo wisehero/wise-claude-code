@@ -1,36 +1,12 @@
 ---
 name: junit-test-writer
-description: Write JUnit 5 tests for Spring Boot projects. Supports unit tests, slice tests (@WebMvcTest, @DataJpaTest), and integration tests (@SpringBootTest). Use for requests like "write tests", "add unit tests", "테스트 코드 작성해줘", "~에 대한 테스트 만들어줘".
+version: 1.1.0
+description: JUnit 5 테스트 코드 작성 스킬. 단위 테스트, 슬라이스 테스트(@WebMvcTest, @DataJpaTest), 통합 테스트(@SpringBootTest)를 작성한다. "테스트 코드 작성해줘", "~에 대한 테스트 만들어줘", "단위 테스트 추가해줘" 같은 요청에 사용.
 ---
 
 # JUnit Test Writer
 
 JUnit 5 기반 테스트 코드를 작성하는 스킬.
-
-## 테스트 범위 선택
-
-테스트 작성 전 AskUserQuestion으로 범위를 확인한다:
-
-| 범위 | 설명 | 속도 |
-|------|------|------|
-| **Unit** | 단일 클래스, Mock 사용, Spring Context 없음 | 빠름 |
-| **Slice** | 특정 레이어만 (@WebMvcTest, @DataJpaTest) | 중간 |
-| **Integration** | 전체 Context (@SpringBootTest) | 느림 |
-| **All** | 대상에 따라 적절한 유형 자동 선택 | - |
-
-```
-AskUserQuestion:
-question: "어떤 테스트를 작성할까요?"
-options:
-  - label: "Unit (Recommended)"
-    description: "Mock 기반 단위 테스트, 가장 빠름"
-  - label: "Slice"
-    description: "Controller는 @WebMvcTest, Repository는 @DataJpaTest"
-  - label: "Integration"
-    description: "@SpringBootTest 전체 통합 테스트"
-  - label: "All"
-    description: "대상 클래스에 맞는 테스트 유형 자동 선택"
-```
 
 ## 테스트 작성 워크플로우
 
@@ -74,6 +50,14 @@ var request = CreateOrderRequest.builder()
 
 컨벤션 상세는 `references/conventions.md` 참조.
 
+### 5. 테스트 실행 및 검증
+
+테스트 작성 후 반드시 실행하여 결과를 확인한다:
+
+- 테스트 실행: `./gradlew test` 또는 `mvn test`
+- 실패 시 원인 분석 후 수정
+- 가능하면 커버리지 확인: 대상 클래스의 분기/라인 커버리지가 충분한지 점검
+
 ## 테스트 유형별 가이드
 
 ### 단위 테스트
@@ -97,7 +81,8 @@ class OrderServiceTest {
 
         // when & then
         assertThatThrownBy(() -> orderService.createOrder(request))
-            .isInstanceOf(InsufficientStockException.class);
+            .isInstanceOf(InsufficientStockException.class)
+            .hasMessage("재고가 부족합니다");
     }
 }
 ```
@@ -110,6 +95,9 @@ class OrderControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @MockBean
     private OrderService orderService;
@@ -127,6 +115,45 @@ class OrderControllerTest {
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.orderId").value(1L));
+    }
+}
+```
+
+### 슬라이스 테스트 - Controller (Security 적용)
+
+Spring Security가 적용된 경우 `@WithMockUser`, `@WithAnonymousUser` 등으로 인증/인가 시나리오를 테스트한다.
+
+```java
+@WebMvcTest(AdminController.class)
+class AdminControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
+    private AdminService adminService;
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    @DisplayName("관리자는 주문을 삭제할 수 있다")
+    void should_deleteOrder_when_admin() throws Exception {
+        mockMvc.perform(delete("/admin/orders/1"))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    @DisplayName("일반 사용자는 관리자 API에 접근할 수 없다")
+    void should_return403_when_notAdmin() throws Exception {
+        mockMvc.perform(delete("/admin/orders/1"))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("인증되지 않은 사용자는 401을 받는다")
+    void should_return401_when_unauthenticated() throws Exception {
+        mockMvc.perform(get("/admin/orders"))
+            .andExpect(status().isUnauthorized());
     }
 }
 ```
@@ -199,29 +226,4 @@ class OrderIntegrationTest {
 | Assertion    | AssertJ 사용 (`assertThat`)             |
 | Mock         | BDDMockito 사용 (`given`, `willReturn`) |
 
-## 테스트 품질 기준
-
-작성된 테스트가 아래 기준을 충족하는지 확인:
-
-| 기준 | 체크 항목 | 필수 |
-|------|-----------|------|
-| **커버리지** | 모든 public 메서드에 최소 1개 테스트 | Yes |
-| **경계값** | null, 빈 값, 최대/최소값 케이스 포함 | Yes |
-| **예외 케이스** | 예상되는 예외 상황 테스트 | Yes |
-| **독립성** | 테스트 간 순서 의존성 없음 | Yes |
-| **명확성** | 실패 시 원인 파악 가능한 assertion 메시지 | No |
-| **속도** | 단위 테스트 100ms 이내, 통합 테스트 3s 이내 | No |
-
-### 필수 테스트 케이스 패턴
-
-```
-메서드당 최소 테스트:
-1. Happy Path - 정상 동작
-2. Edge Case - 경계값 (null, empty, max)
-3. Error Case - 예외 상황
-```
-
-## 참조 자료
-
-- **컨벤션 상세**: `references/conventions.md`
-- **테스트 예시**: `examples/OrderServiceTest.java`
+상세 컨벤션은 `references/conventions.md` 참조.
