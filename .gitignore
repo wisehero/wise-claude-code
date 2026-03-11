@@ -1,0 +1,8 @@
+# Claude Code 설정
+.claude/
+
+# oh-my-claudecode 설정
+.omc/
+
+# 스킬 가이드 PDF
+The-Complete-Guide-to-Building-Skill-for-Claude.pdf
