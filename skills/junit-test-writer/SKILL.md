@@ -1,5 +1,6 @@
 ---
 name: junit-test-writer
+version: 1.0.0
 description: JUnit 5 테스트 코드 작성 스킬. 단위 테스트, 슬라이스 테스트(@WebMvcTest, @DataJpaTest), 통합 테스트(@SpringBootTest)를 작성한다. "테스트 코드 작성해줘", "~에 대한 테스트 만들어줘", "단위 테스트 추가해줘", "통합 테스트 작성", "테스트 케이스 추가", "커버리지 높여줘", "테스트 없는 코드에 테스트 추가" 같은 요청에 사용.
 ---
 
