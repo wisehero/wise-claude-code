@@ -344,7 +344,7 @@ MCP 서버를 처음 도입할 때 모든 서버를 한꺼번에 설정하려 �
 
 ## 다음 단계
 
-- Claude Code hooks 설정으로 작업 자동화 -> [06-hooks.md](./06-hooks.md)
+- Claude Code hooks 설정으로 작업 자동화 -> [04-hooks.md](./04-hooks.md)
 - 커스텀 MCP 서버 구현 상세 가이드 -> [MCP 공식 문서](https://modelcontextprotocol.io/docs)
 - MCP 서버 목록과 커뮤니티 서버 탐색 -> [MCP 서버 레지스트리](https://github.com/modelcontextprotocol/servers)
 

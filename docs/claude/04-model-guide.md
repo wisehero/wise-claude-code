@@ -76,9 +76,9 @@ Haiku는 처리량이 많고 응답 속도가 중요하며 각 작업이 단순�
 
 ---
 
-## 4. Effort 파라미터 (Adaptive Thinking)
+## 4. Effort 파라미터
 
-Claude 4.6 모델(Opus, Sonnet)은 `effort` 파라미터로 추론 깊이를 제어할 수 있다. 모델이 답변을 생성하기 전에 내부적으로 얼마나 오래 "생각"할지를 지정하는 방식이다.
+Claude 4.6 모델(Opus, Sonnet)은 `effort` 파라미터로 추론 깊이를 제어할 수 있다. 모델이 답변을 생성하기 전에 내부적으로 얼마나 오래 "생각"할지를 지정하는 고수준 파라미터다.
 
 | 값 | 용도 |
 |---|---|
@@ -99,10 +99,7 @@ client = anthropic.Anthropic()
 response = client.messages.create(
     model="claude-sonnet-4-6",
     max_tokens=8000,
-    thinking={
-        "type": "enabled",
-        "budget_tokens": 5000
-    },
+    effort="high",
     messages=[{
         "role": "user",
         "content": "이 알고리즘의 시간 복잡도를 분석하고 최적화 방안을 제시해줘."
@@ -110,7 +107,16 @@ response = client.messages.create(
 )
 ```
 
-`budget_tokens`는 내부 추론(thinking)에 허용할 최대 토큰 수다. 이 값이 클수록 더 깊이 생각하지만 그만큼 시간과 비용이 든다. Extended Thinking에 대한 자세한 내용은 `05-extended-thinking.md`에서 다룬다.
+`effort`는 모델이 내부적으로 사용하는 추론 토큰의 양을 조절하는 간편한 방법이다. 추론 깊이를 더 세밀하게 제어하고 싶다면 `thinking` 파라미터의 `budget_tokens`로 직접 토큰 수를 지정할 수 있다. Extended Thinking에 대한 자세한 내용은 `05-extended-thinking.md`에서 다룬다.
+
+### effort와 Extended Thinking의 차이
+
+두 기능은 모두 Claude의 추론 깊이를 조절하지만 추상화 수준이 다르다.
+
+- **effort**: `low`, `medium`, `high`, `max` 중 선택하는 고수준 파라미터. 간편하지만 세밀한 제어는 어렵다.
+- **Extended Thinking**: `thinking` 파라미터로 `budget_tokens`를 직접 지정하는 저수준 파라미터. 토큰 단위로 추론 깊이를 정밀하게 제어할 수 있다.
+
+두 기능을 조합할 수도 있다. 자세한 내용은 `05-extended-thinking.md`를 참고한다.
 
 ---
 

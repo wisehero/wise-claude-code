@@ -42,6 +42,9 @@ Claude Code를 처음 설치하거나, 프롬프트 작성 경험이 없다면 �
 | [시스템 프롬프트 설계](claude/03-system-prompt-design.md) | 중급 | 설계 원칙, 모범 사례, 안티패턴 |
 | [모델 선택 가이드](claude/04-model-guide.md) | 기초 | Opus/Sonnet/Haiku 비교, 상황별 선택 기준 |
 | [확장 사고](claude/05-extended-thinking.md) | 심화 | 확장 사고 모드 활용, budget_tokens 설정 |
+| [도구 사용](claude/06-tool-use.md) | 중급 | 외부 함수 호출, 도구 정의, 구조화된 데이터 추출 |
+| [이미지 입력](claude/07-vision.md) | 중급 | 이미지 분석, 스크린샷 기반 작업, 디자인→코드 변환 |
+| [프롬프트 캐싱](claude/08-prompt-caching.md) | 중급~심화 | 반복 입력 캐싱으로 비용 90% 절감, TTL 관리 |
 
 ### Part 2: Claude Code 활용
 
@@ -54,6 +57,7 @@ Claude Code를 처음 설치하거나, 프롬프트 작성 경험이 없다면 �
 | [MCP 서버](claude-code/05-mcp-servers.md) | 중급~심화 | MCP 개념, 설정 방법, 주요 서버 소개 |
 | [실전 워크플로우](claude-code/06-workflow.md) | 중급~심화 | Git 연동, 멀티에이전트, 컨텍스트 관리 |
 | [단축키와 슬래시 명령어](claude-code/07-shortcuts-and-commands.md) | 기초 | 키보드 단축키, 슬래시 명령어 전체 레퍼런스 |
+| [하네스 엔지니어링](claude-code/08-harness-engineering.md) | 중급~심화 | 프롬프트 vs 하네스 비교, 6대 레이어, 설계 원칙, 전환 패턴 |
 
 ### 부록
 
