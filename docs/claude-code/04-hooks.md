@@ -1,0 +1,385 @@
+# 훅 시스템
+
+> **난이도**: 심화 | **선행 문서**: [Claude Code 시작하기](01-getting-started.md)
+>
+> Claude Code의 동작을 가로채고 확장하는 Hooks의 이벤트, 타입, 설정 방법을 다룬다.
+
+---
+
+## Hook이란?
+
+Hook은 Claude Code의 특정 이벤트에 반응해 자동으로 실행되는 명령이다. Claude가 파일을 편집하거나 셸 명령을 실행하는 순간 가로채서, 포맷팅·검증·로깅 같은 부가 작업을 자동으로 처리할 수 있다.
+
+Hook 없이도 Claude Code를 사용할 수 있다. 하지만 같은 작업을 반복적으로 지시해야 하는 상황이 생기면 Hook을 쓸 시점이다.
+
+- "파일 편집할 때마다 prettier 돌려줘" — 매번 말하는 대신 PostToolUse Hook으로 자동화한다.
+- "프로덕션 설정 파일은 절대 건드리지 마" — 매 세션마다 주의를 주는 대신 PreToolUse Hook으로 차단한다.
+- "작업 완료되면 슬랙에 알려줘" — 매번 지시하는 대신 Stop Hook으로 알림을 보낸다.
+
+Hook은 `settings.json`의 `hooks` 키에 설정한다. 설정 파일 위치는 아래 [Hook 설정 방법](#hook-설정-방법) 섹션에서 다룬다.
+
+---
+
+## Hook 이벤트
+
+Claude Code는 12가지 이벤트에 Hook을 걸 수 있다.
+
+| 이벤트 | 발생 시점 | 차단 가능 여부 |
+|---|---|---|
+| `SessionStart` | 세션 시작 또는 재개 시 | 아니오 |
+| `PreToolUse` | 도구 실행 직전 | 예 |
+| `PostToolUse` | 도구 실행 성공 후 | 아니오 |
+| `PermissionRequest` | 권한 확인 프롬프트 표시 시 | 예 |
+| `Notification` | Claude가 알림을 보낼 시점 | 아니오 |
+| `Stop` | Claude 응답 완료 시 | 아니오 |
+| `ConfigChange` | 설정 파일 변경 감지 시 | 아니오 |
+| `CwdChanged` | 작업 디렉토리(cwd) 변경 시 | 아니오 |
+| `FileChanged` | 파일 변경 감시 이벤트 발생 시 | 아니오 |
+| `SubagentStart` | 서브에이전트(하위 에이전트) 시작 시 | 아니오 |
+| `SubagentStop` | 서브에이전트 종료 시 | 아니오 |
+| `SessionEnd` | 세션 종료 시 | 아니오 |
+
+차단 가능한 이벤트(`PreToolUse`, `PermissionRequest`)에서는 Hook이 종료 코드 `2`를 반환하면 해당 작업이 실행되지 않는다. 나머지 이벤트는 알림·로깅 용도로만 사용하며, Hook의 반환값이 작업 실행 여부에 영향을 주지 않는다.
+
+### 이벤트에 전달되는 컨텍스트
+
+Hook이 실행될 때 Claude Code는 이벤트 관련 정보를 JSON 형태로 환경 변수 또는 표준 입력(stdin)으로 전달한다. `PreToolUse`와 `PostToolUse`의 경우 어떤 도구가 어떤 인자로 실행됐는지 확인할 수 있다.
+
+```json
+{
+  "tool_name": "Edit",
+  "tool_input": {
+    "file_path": "/src/app.ts",
+    "old_string": "...",
+    "new_string": "..."
+  }
+}
+```
+
+이 정보를 활용하면 특정 파일이나 특정 도구에만 반응하는 정교한 Hook을 작성할 수 있다.
+
+---
+
+## Hook 타입
+
+Hook에서 실행할 작업의 형태는 네 가지다.
+
+### command
+
+셸 명령어를 직접 실행한다. 가장 일반적인 타입으로, 포맷터·린터·알림 스크립트 등을 처리할 때 사용한다.
+
+```json
+{
+  "type": "command",
+  "command": "prettier --write $FILE_PATH"
+}
+```
+
+### prompt
+
+Claude(Haiku 모델)에게 평가를 맡긴다. 자연어로 판단 기준을 정의하고, Claude가 해당 기준에 따라 허용 또는 차단 결정을 내린다.
+
+```json
+{
+  "type": "prompt",
+  "prompt": "이 파일 편집이 보안에 영향을 줄 수 있는지 확인해라. 영향이 있다면 차단하라."
+}
+```
+
+단순한 규칙은 `command` 타입으로, 맥락에 따른 판단이 필요한 경우에는 `prompt` 타입을 사용한다.
+
+### agent
+
+서브에이전트(하위 에이전트)를 별도로 실행해 검증 작업을 맡긴다. `prompt` 타입보다 더 복잡한 도구 사용이 필요할 때 적합하다.
+
+```json
+{
+  "type": "agent",
+  "agent": "security-reviewer",
+  "prompt": "변경된 파일에서 SQL 인젝션 취약점을 검토하라."
+}
+```
+
+### http
+
+HTTP 엔드포인트를 호출한다. 외부 서비스와 연동하거나 웹훅(webhook, 이벤트 기반 HTTP 콜백)을 전송할 때 사용한다.
+
+```json
+{
+  "type": "http",
+  "url": "https://hooks.example.com/claude-event",
+  "method": "POST",
+  "headers": {
+    "Authorization": "Bearer $WEBHOOK_TOKEN"
+  }
+}
+```
+
+---
+
+## Hook 설정 방법
+
+Hook은 `settings.json`의 `hooks` 키 아래에 이벤트별로 배열로 작성한다.
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "prettier --write $TOOL_INPUT_FILE_PATH"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### matcher 필드
+
+`matcher`는 정규식으로 대상 도구를 필터링한다. `PreToolUse`와 `PostToolUse`에서 유용하다. 설정하지 않으면 해당 이벤트의 모든 도구 호출에 반응한다.
+
+```json
+"matcher": "Edit|Write"        // Edit 또는 Write 도구에만 반응
+"matcher": "Bash"              // Bash 도구에만 반응
+"matcher": "Edit|Write|Bash"   // 세 가지 모두에 반응
+```
+
+### 설정 파일 위치
+
+Hook도 `settings.json`에 저장한다. 파일 위치에 따라 적용 범위가 달라진다.
+
+| 파일 | 위치 | 적용 범위 |
+|---|---|---|
+| 글로벌 설정 | `~/.claude/settings.json` | 모든 프로젝트 |
+| 프로젝트 설정 | `.claude/settings.json` | 해당 프로젝트 (팀 공유) |
+| 로컬 설정 | `.claude/settings.local.json` | 해당 프로젝트 (개인 전용) |
+
+보안 검사처럼 팀 전체에 강제할 Hook은 프로젝트 설정에, 데스크톱 알림처럼 개인 환경에 맞는 Hook은 로컬 설정에 둔다.
+
+---
+
+## 실전 활용 패턴
+
+### 패턴 1: 파일 편집 후 자동 포맷팅
+
+파일을 편집할 때마다 prettier를 자동으로 실행한다. 포맷팅을 직접 지시하지 않아도 된다.
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx prettier --write \"$TOOL_INPUT_FILE_PATH\" 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+`2>/dev/null || true`를 붙이는 이유는 prettier가 지원하지 않는 파일 형식을 만났을 때 오류로 인해 작업이 중단되지 않도록 하기 위해서다.
+
+### 패턴 2: 보호된 파일 수정 방지
+
+특정 파일에 대한 편집을 사전에 차단한다. 프로덕션 설정 파일이나 보안 관련 파일을 실수로 수정하는 것을 막는 데 효과적이다.
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"\nimport json, sys\ndata = json.load(sys.stdin)\npath = data.get('tool_input', {}).get('file_path', '')\nprotected = ['.env', '.env.production', 'secrets.yaml']\nif any(p in path for p in protected):\n    print(f'차단됨: {path}는 보호된 파일입니다.')\n    sys.exit(2)\n\""
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+종료 코드 `2`를 반환하면 Claude Code가 해당 편집을 실행하지 않고 차단 메시지를 표시한다.
+
+### 패턴 3: 데스크톱 알림
+
+Claude가 작업을 완료하거나 사람의 입력을 기다릴 때 데스크톱 알림을 보낸다. 긴 작업을 맡겨두고 다른 일을 할 때 유용하다.
+
+**macOS:**
+
+```json
+{
+  "hooks": {
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "osascript -e 'display notification \"Claude Code가 응답을 기다리고 있습니다.\" with title \"Claude Code\"'"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+**Windows:**
+
+```json
+{
+  "hooks": {
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -Command \"[System.Windows.Forms.MessageBox]::Show('Claude Code가 응답을 기다리고 있습니다.', 'Claude Code')\""
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### 패턴 4: 권한 자동 승인
+
+특정 도구나 명령에 대해 매번 확인 없이 자동으로 허용한다. 반복적인 승인 클릭을 줄일 수 있다.
+
+```json
+{
+  "hooks": {
+    "PermissionRequest": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"\nimport json, sys\ndata = json.load(sys.stdin)\ncmd = data.get('tool_input', {}).get('command', '')\nsafe_prefixes = ['git status', 'git log', 'git diff', 'npm test', 'npx jest']\nif any(cmd.startswith(p) for p in safe_prefixes):\n    sys.exit(0)\nelse:\n    sys.exit(1)\n\""
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+종료 코드 `0`은 허용, `1`은 기본 동작(사용자에게 확인 요청)으로 처리된다.
+
+---
+
+## 종료 코드
+
+Hook은 종료 코드로 다음 동작을 제어한다.
+
+| 종료 코드 | 의미 |
+|---|---|
+| `0` | 정상 처리. 작업을 진행한다. |
+| `2` | 작업 차단. `PreToolUse`와 `PermissionRequest`에서만 효과가 있다. |
+| 그 외 | Hook 실행 실패로 처리. 작업은 진행된다. |
+
+### stdout으로 메시지 전달
+
+Hook이 표준 출력(stdout)으로 내보내는 텍스트는 Claude Code가 읽어 컨텍스트에 포함한다. 차단 이유나 추가 정보를 전달할 때 활용한다.
+
+```bash
+#!/bin/bash
+FILE_PATH="$1"
+
+if [[ "$FILE_PATH" == *".env"* ]]; then
+    echo "이 파일은 민감한 환경 변수를 포함합니다. 수정이 차단됩니다."
+    exit 2
+fi
+```
+
+Claude는 이 메시지를 읽고 왜 작업이 차단됐는지 이해하며, 필요하면 대안을 제시한다.
+
+---
+
+## 주의사항
+
+### 무한 루프 방지
+
+Hook이 다른 Hook을 트리거하는 상황을 조심해야 한다. 예를 들어 `PostToolUse`에서 파일을 수정하는 Hook을 걸면, 그 수정이 다시 `PostToolUse`를 발생시켜 무한 루프가 생길 수 있다.
+
+Claude Code는 Hook이 재귀적으로 실행되지 않도록 내부적으로 보호 장치를 두고 있지만, 외부 스크립트가 파일을 직접 쓰는 경우에는 이 보호 장치가 작동하지 않는다. Hook 스크립트가 편집 도구를 호출하지 않고 OS 수준에서 직접 파일을 쓰도록 작성하는 편이 안전하다.
+
+### 성능 영향
+
+Hook은 매 도구 호출마다 실행된다. 무거운 작업을 Hook에 넣으면 Claude의 응답이 느려진다. 다음 원칙을 지킨다.
+
+- 포맷터처럼 빠른 작업만 동기 Hook으로 처리한다.
+- 30초 이상 걸리는 작업은 백그라운드(background)로 실행한다.
+- 무거운 테스트 스위트 전체를 Hook으로 돌리는 것은 피한다. 관련 파일만 선별해 실행한다.
+
+### 디버깅
+
+현재 세션에 어떤 Hook이 등록됐는지 확인하려면 세션 내에서 슬래시 명령을 사용한다.
+
+```
+/hooks
+```
+
+Hook이 기대한 대로 동작하지 않을 때는 Hook 스크립트를 터미널에서 직접 실행해 동작을 확인한다. stdin으로 예상 JSON을 넘겨 테스트하면 문제를 빠르게 파악할 수 있다.
+
+```bash
+echo '{"tool_name":"Edit","tool_input":{"file_path":"/src/app.ts"}}' | bash my-hook.sh
+```
+
+---
+
+## 핵심 정리
+
+### Hook 설정 체크리스트
+
+- [ ] 이벤트가 올바른가? (`PreToolUse` vs `PostToolUse`)
+- [ ] `matcher` 정규식이 의도한 도구만 선택하는가?
+- [ ] 차단이 필요한 경우 종료 코드 `2`를 반환하는가?
+- [ ] Hook 스크립트 자체가 충분히 빠른가?
+- [ ] 무한 루프 가능성이 없는가?
+- [ ] 설정 파일 위치가 적용 범위(글로벌/프로젝트/로컬)와 맞는가?
+- [ ] `/hooks` 명령으로 등록 여부를 확인했는가?
+
+### Hook vs 스킬: 언제 무엇을 쓸 것인가
+
+Hook과 스킬(Skill)은 모두 Claude Code의 동작을 확장하지만 쓰임새가 다르다.
+
+**Hook을 써야 하는 경우:**
+- "파일을 편집할 때마다 X를 자동으로 실행해야 한다"처럼 특정 이벤트에 반드시 반응해야 할 때
+- 사람의 지시 없이 자동으로 실행되어야 할 때
+- 특정 작업을 차단하거나 권한을 자동 승인해야 할 때
+
+**스킬을 써야 하는 경우:**
+- 사용자가 슬래시 명령(`/스킬이름`)으로 직접 실행하는 워크플로우를 만들 때
+- Claude에게 복잡한 작업 절차나 출력 형식을 주입해야 할 때
+- 자동 실행이 아닌 온디맨드(on-demand, 요청 시 실행) 방식으로 동작해야 할 때
+
+요약하면, Hook은 "이벤트가 발생할 때마다 자동으로"이고 스킬은 "내가 원할 때 꺼내 쓰는 워크플로우"다.
+
+---
+
+## 다음 단계
+
+- 설정 파일 전체 옵션 -> [Claude Code 공식 문서](https://docs.anthropic.com/ko/docs/claude-code/hooks)
+- 권한 설정 세부 옵션 -> [Claude Code 공식 문서](https://docs.anthropic.com/ko/docs/claude-code/settings)
+- CLAUDE.md 작성 가이드 -> [02-claude-md.md](./02-claude-md.md)
+
+## 참고 문서
+
+이 문서는 아래 Anthropic 공식 문서를 기반으로 작성되었다.
+
+- [Claude Code Hooks](https://docs.anthropic.com/en/docs/claude-code/hooks)
+- [Claude Code Settings](https://docs.anthropic.com/en/docs/claude-code/settings)

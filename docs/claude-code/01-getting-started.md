@@ -1,0 +1,309 @@
+# Claude Code 시작하기
+
+> **난이도**: 기초 | **선행 문서**: 없음
+>
+> Claude Code의 설치부터 첫 세션까지, 빠르게 시작하는 데 필요한 모든 것을 다룬다.
+
+---
+
+## Claude Code란?
+
+Claude Code는 Anthropic이 공식 배포하는 CLI(Command-Line Interface, 명령줄 인터페이스) 도구다. 터미널에서 Claude와 직접 대화하면서 코드 작성, 파일 편집, git 작업, 테스트 실행 등 개발 워크플로 전반을 처리할 수 있다.
+
+웹 브라우저에서 쓰는 claude.ai와 달리 Claude Code는 현재 작업 중인 코드베이스 위에서 동작한다. 파일을 직접 읽고, 셸 명령을 실행하며, 변경 사항을 파일에 바로 쓴다. 개발자에게 필요한 작업 대부분을 터미널을 벗어나지 않고 처리할 수 있다는 점이 핵심이다.
+
+### 사용 가능한 인터페이스
+
+Claude Code는 여러 형태로 제공된다.
+
+- **CLI**: 터미널에서 `claude` 명령으로 실행하는 기본 형태
+- **데스크톱 앱**: 독립 실행형 네이티브 앱
+- **웹 앱**: claude.ai/code에서 브라우저로 접근
+- **IDE 확장**: VS Code와 JetBrains 계열 IDE에서 패널로 사용
+
+이 문서는 CLI를 기준으로 설명한다. 핵심 개념과 명령어는 다른 인터페이스에도 그대로 적용된다.
+
+---
+
+## 설치
+
+### macOS / Linux
+
+터미널에서 아래 명령을 실행한다.
+
+```bash
+curl -fsSL https://claude.ai/install.sh | bash
+```
+
+설치 스크립트가 Node.js 버전을 확인하고, Claude Code 바이너리를 내려받아 PATH에 등록한다. 완료 후 새 터미널 탭을 열거나 `source ~/.bashrc`(또는 `~/.zshrc`)를 실행해 PATH를 갱신한다.
+
+Homebrew를 선호한다면 아래 방법도 사용할 수 있다.
+
+```bash
+brew install --cask claude-code
+```
+
+단, Homebrew를 통한 설치는 자동 업데이트가 지원되지 않는다. 최신 버전을 유지하려면 주기적으로 `brew upgrade --cask claude-code`를 실행해야 한다.
+
+### Windows
+
+PowerShell을 관리자 권한으로 열고 실행한다.
+
+```powershell
+irm https://claude.ai/install.ps1 | iex
+```
+
+명령 프롬프트(CMD)에서 설치하려면 공식 문서를 참고한다.
+
+WinGet을 사용하는 경우 아래 명령으로 설치할 수 있다.
+
+```powershell
+winget install Anthropic.ClaudeCode
+```
+
+Homebrew와 마찬가지로 WinGet 설치본도 자동 업데이트가 지원되지 않는다.
+
+**Windows 사용 시 주의 사항**: Claude Code는 내부적으로 git 명령을 사용하므로 Git for Windows가 반드시 설치되어 있어야 한다. [git-scm.com](https://git-scm.com)에서 내려받을 수 있다.
+
+### 설치 확인
+
+설치가 끝나면 버전을 확인해 정상적으로 설치됐는지 점검한다.
+
+```bash
+claude --version
+```
+
+버전 번호가 출력되면 설치가 완료된 것이다.
+
+---
+
+## 인증 및 로그인
+
+Claude Code를 처음 실행하면 로그인 절차가 시작된다.
+
+```bash
+claude
+```
+
+또는 대화 세션 중에 슬래시 명령으로 로그인할 수 있다.
+
+```
+/login
+```
+
+### 지원하는 계정 유형
+
+| 계정 유형 | 설명 |
+|---|---|
+| Claude Pro / Max | claude.ai 개인 구독 |
+| Claude Teams / Enterprise | 팀 및 기업 구독 |
+| Claude Console (API) | Anthropic API 키를 통한 직접 접근 |
+| Amazon Bedrock | AWS에서 호스팅하는 Claude 모델 |
+| Google Vertex AI | GCP에서 호스팅하는 Claude 모델 |
+
+Pro 또는 Max 구독자라면 브라우저 OAuth(개방형 인증) 흐름으로 로그인한다. API 키를 사용하는 경우 Console에서 발급한 키를 입력한다. Bedrock과 Vertex AI는 각 클라우드 제공업체의 자격증명 설정이 선행되어야 한다.
+
+---
+
+## 기본 명령어
+
+Claude Code를 사용하는 방식은 크게 세 가지다.
+
+### 인터랙티브 세션(대화형 세션)
+
+```bash
+claude
+```
+
+REPL(Read-Eval-Print Loop, 읽기-평가-출력 반복) 환경이 열린다. 여기서 자연어로 요청을 입력하면 Claude가 파일을 읽고, 코드를 작성하고, 명령을 실행한다. 세션을 종료하려면 `exit`를 입력하거나 `Ctrl+C`를 두 번 누른다.
+
+### 일회성 작업
+
+```bash
+claude "README.md 파일을 읽고 주요 기능을 세 줄로 요약해줘"
+```
+
+세션을 열지 않고 단일 작업을 처리한다. 결과를 출력하고 종료된다. 스크립트나 파이프라인에 Claude를 끼워 넣을 때 유용하다.
+
+### 쿼리 후 종료
+
+```bash
+claude -p "이 프로젝트의 주요 의존성은 무엇인가?"
+```
+
+`-p` 플래그(print 모드)는 단일 질의를 처리하고 결과를 표준 출력으로 내보낸 뒤 종료한다. 다른 명령의 출력을 파이프로 연결할 때 활용한다.
+
+### 이전 대화 재개
+
+```bash
+claude -c          # 가장 최근 대화 이어서 시작
+claude -r          # 이전 대화 목록에서 선택해 재개
+```
+
+Claude Code는 대화 기록을 저장한다. 어제 작업하던 컨텍스트(문맥)를 그대로 이어서 사용할 수 있다.
+
+### Git 커밋 생성
+
+```bash
+claude commit
+```
+
+현재 스테이징된 변경 사항을 분석해 커밋 메시지를 작성하고 커밋한다. 메시지를 직접 작성하지 않아도 된다.
+
+### 세션 내 슬래시 명령
+
+인터랙티브 세션 안에서 `/`로 시작하는 명령을 사용할 수 있다.
+
+| 명령 | 설명 |
+|---|---|
+| `/help` | 사용 가능한 명령 목록 표시 |
+| `/clear` | 현재 대화 컨텍스트 초기화 |
+| `/init` | 현재 프로젝트에 CLAUDE.md 파일 생성 |
+| `/login` | 계정 로그인 |
+| `exit` | 세션 종료 |
+
+---
+
+## 권한 모드(Permission Modes)
+
+Claude Code는 파일 쓰기, 명령 실행 등 실제 시스템에 영향을 주는 작업을 수행한다. 권한 모드는 Claude가 작업을 수행하기 전에 사용자 확인을 얼마나 요구할지 결정한다.
+
+### 세 가지 모드
+
+**default 모드**: 잠재적 위험이 있는 모든 작업에 대해 확인을 요청한다. 파일 수정, 명령 실행 등을 수행하기 전에 "허용할까요?"라는 프롬프트가 표시된다. 처음 사용하거나 낯선 코드베이스에서 작업할 때 권장한다.
+
+**plan 모드**: 읽기 전용 분석 모드다. 파일을 읽고 계획을 세우는 작업만 수행하며 실제 변경을 가하지 않는다. 변경 전에 Claude가 무엇을 할지 미리 파악하고 싶을 때 사용한다.
+
+**auto 모드**: Claude가 위험도를 자체 판단해 안전하다고 판단한 작업은 확인 없이 진행한다. 반복적인 승인 클릭 없이 빠르게 작업하고 싶을 때 유용하지만, 예상치 못한 변경이 발생할 수 있으므로 주의가 필요하다.
+
+### 모드 전환
+
+세션 중 `Shift+Tab`을 누르면 모드를 순환 전환할 수 있다. 현재 활성 모드는 프롬프트 옆에 표시된다.
+
+### 자주 쓰는 도구 자동 허용
+
+매번 특정 도구의 실행을 허용하는 것이 번거롭다면 설정 파일에 `allowedTools` 항목을 추가한다. 예를 들어 `Bash` 도구를 항상 허용하도록 설정할 수 있다. 이 설정은 아래에서 설명하는 설정 파일 구조를 통해 적용한다. 권한 설정의 세부 옵션은 [공식 문서](https://docs.anthropic.com/ko/docs/claude-code/settings)를 참고한다.
+
+---
+
+## 설정 파일 구조
+
+Claude Code의 동작은 JSON 설정 파일로 제어한다. 파일 위치에 따라 적용 범위가 달라진다.
+
+### 글로벌 설정
+
+```
+~/.claude/settings.json
+```
+
+모든 프로젝트에 공통으로 적용되는 설정이다. 선호하는 모델, 기본 권한 모드, API 키 등 사용자 수준 설정을 여기에 저장한다.
+
+### 프로젝트 설정
+
+```
+.claude/settings.json
+```
+
+특정 프로젝트 루트에 위치하며 git에 커밋해 팀과 공유한다. 프로젝트에 특화된 허용 도구 목록, 환경 변수 등을 정의한다.
+
+### 프로젝트 로컬 설정
+
+```
+.claude/settings.local.json
+```
+
+프로젝트별이지만 git에 올리지 않는 개인 설정이다. `.gitignore`에 자동으로 추가된다. API 키처럼 공유하면 안 되는 값이나 개인 취향 설정을 여기에 저장한다.
+
+### 주요 설정 항목
+
+```json
+{
+  "model": "claude-opus-4-5",
+  "permissions": {
+    "allow": ["Bash(git:*)"],
+    "deny": []
+  },
+  "env": {
+    "CLAUDE_SKIP_PERMISSIONS": "false"
+  }
+}
+```
+
+설정 파일의 전체 옵션은 프로젝트 지침 파일인 CLAUDE.md와 함께 사용할 때 진가를 발휘한다. CLAUDE.md에 대한 자세한 내용은 [02-claude-md.md](./02-claude-md.md)에서 다룬다.
+
+---
+
+## 첫 세션 체크리스트
+
+아래 순서로 따라가면 Claude Code를 빠르게 시작할 수 있다.
+
+### 1단계: 설치 및 로그인 확인
+
+```bash
+claude --version   # 설치 확인
+claude             # 세션 시작 및 로그인
+```
+
+처음 실행하면 로그인 절차가 자동으로 안내된다. 브라우저가 열리며 Anthropic 계정으로 인증한다.
+
+### 2단계: 프로젝트 초기화
+
+작업할 프로젝트 디렉토리로 이동한 뒤 세션을 열고 `/init`을 실행한다.
+
+```bash
+cd my-project
+claude
+```
+
+세션 안에서:
+
+```
+/init
+```
+
+`/init`은 현재 코드베이스를 분석해 `CLAUDE.md` 파일을 생성한다. 이 파일은 Claude가 프로젝트를 이해하는 데 사용하는 지침 문서다. 생성된 내용을 검토하고 팀 컨벤션(코딩 규칙)이나 주의 사항을 직접 추가하면 된다.
+
+### 3단계: 첫 번째 작업 실행
+
+간단한 작업으로 시작해본다.
+
+```
+이 프로젝트의 디렉토리 구조를 설명해줘
+```
+
+Claude가 파일을 탐색하며 프로젝트 구조를 파악하고 설명한다. 필요에 따라 권한 확인 프롬프트가 표시된다.
+
+다음으로 실질적인 작업을 시도한다.
+
+```
+src/utils.js 파일에서 중복된 함수가 있는지 확인하고 정리해줘
+```
+
+Claude가 파일을 읽고 중복을 찾은 뒤, 변경 사항을 적용하기 전에 확인을 요청한다(default 모드 기준). 내용을 검토하고 허용 여부를 결정한다.
+
+---
+
+## 핵심 정리
+
+- Claude Code는 터미널에서 동작하는 Anthropic 공식 CLI로, 코드베이스에 직접 접근해 파일 편집과 명령 실행을 수행한다.
+- 설치는 플랫폼별 단일 명령으로 완료되며, Windows에서는 Git for Windows가 선행 설치되어야 한다.
+- Pro / Max / Teams / Enterprise 구독과 Anthropic API, Bedrock, Vertex AI를 통한 접근을 모두 지원한다.
+- 권한 모드(default / plan / auto)로 Claude의 자율성 수준을 조절하며, `Shift+Tab`으로 즉시 전환할 수 있다.
+- 설정 파일은 글로벌(`~/.claude/settings.json`), 프로젝트(`.claude/settings.json`), 로컬(`.claude/settings.local.json`) 세 계층으로 나뉜다.
+- 새 프로젝트를 시작할 때는 `/init`으로 `CLAUDE.md`를 먼저 생성한다.
+
+---
+
+## 다음 단계
+
+- CLAUDE.md 파일을 효과적으로 작성하는 방법 -> [02-claude-md.md](./02-claude-md.md)
+- 키보드 단축키와 세션 내 명령어 전체 목록 -> [07-shortcuts-and-commands.md](./07-shortcuts-and-commands.md)
+- 권한 설정 세부 옵션 -> [Claude Code 공식 문서](https://docs.anthropic.com/ko/docs/claude-code/settings)
+
+## 참고 문서
+
+이 문서는 아래 Anthropic 공식 문서를 기반으로 작성되었다.
+
+- [Claude Code Overview](https://docs.anthropic.com/en/docs/claude-code/overview)
+- [Claude Code Quickstart](https://docs.anthropic.com/en/docs/claude-code/quickstart)
+- [Claude Code Settings](https://docs.anthropic.com/en/docs/claude-code/settings)
