@@ -1,6 +1,6 @@
 # MCP 서버 연동
 
-> **난이도**: 중급~심화 | **선행 문서**: [Claude Code 시작하기](01-getting-started.md)
+> **난이도**: 중급~심화 | **선행 문서**: [Claude Code 시작하기](01-시작하기.md)
 >
 > Model Context Protocol(MCP)의 개념과 Claude Code에서 외부 서비스를 연동하는 방법을 다룬다.
 
@@ -344,7 +344,7 @@ MCP 서버를 처음 도입할 때 모든 서버를 한꺼번에 설정하려 �
 
 ## 다음 단계
 
-- Claude Code hooks 설정으로 작업 자동화 -> [04-hooks.md](./04-hooks.md)
+- Claude Code hooks 설정으로 작업 자동화 -> [04-훅-시스템.md](./04-훅-시스템.md)
 - 커스텀 MCP 서버 구현 상세 가이드 -> [MCP 공식 문서](https://modelcontextprotocol.io/docs)
 - MCP 서버 목록과 커뮤니티 서버 탐색 -> [MCP 서버 레지스트리](https://github.com/modelcontextprotocol/servers)
 

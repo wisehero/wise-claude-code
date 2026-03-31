@@ -1,6 +1,6 @@
 # CLAUDE.md 작성 가이드
 
-> **난이도**: 기초~중급 | **선행 문서**: [Claude Code 시작하기](01-getting-started.md)
+> **난이도**: 기초~중급 | **선행 문서**: [Claude Code 시작하기](01-시작하기.md)
 >
 > 프로젝트의 맥락과 규칙을 Claude에게 전달하는 CLAUDE.md의 작성법과 계층 구조를 다룬다.
 
@@ -21,7 +21,7 @@ Claude Code는 세션을 시작할 때 작업 디렉토리를 탐색해 `CLAUDE.
 
 ### 시스템 프롬프트와의 관계
 
-CLAUDE.md는 사실상 프로젝트 전용 시스템 프롬프트로 동작한다. Claude Code는 이 파일의 내용을 컨텍스트(문맥) 창의 초반부에 주입한다. 따라서 지침이 길고 상세할수록 실제 작업에 쓸 수 있는 컨텍스트가 줄어든다. 시스템 프롬프트 설계의 원칙에 대해서는 [claude/03-system-prompt-design.md](../claude/03-system-prompt-design.md)를 참조한다.
+CLAUDE.md는 사실상 프로젝트 전용 시스템 프롬프트로 동작한다. Claude Code는 이 파일의 내용을 컨텍스트(문맥) 창의 초반부에 주입한다. 따라서 지침이 길고 상세할수록 실제 작업에 쓸 수 있는 컨텍스트가 줄어든다. 시스템 프롬프트 설계의 원칙에 대해서는 [claude/03-시스템-프롬프트-설계.md](../claude/03-시스템-프롬프트-설계.md)를 참조한다.
 
 ---
 
@@ -272,7 +272,7 @@ CLAUDE.md 작성 체크리스트다.
 
 ## 다음 단계
 
-- 시스템 프롬프트 설계 원칙 -> [claude/03-system-prompt-design.md](../claude/03-system-prompt-design.md)
+- 시스템 프롬프트 설계 원칙 -> [claude/03-시스템-프롬프트-설계.md](../claude/03-시스템-프롬프트-설계.md)
 - 설정 파일 전체 옵션 -> [Claude Code 공식 문서](https://docs.anthropic.com/ko/docs/claude-code/settings)
 - 권한 설정 세부 옵션 -> [Claude Code 공식 문서](https://docs.anthropic.com/ko/docs/claude-code/iam)
 

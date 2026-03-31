@@ -18,11 +18,11 @@ Claude Code를 처음 설치하거나, 프롬프트 작성 경험이 없다면 �
 
 | 순서 | 문서 | 이유 |
 |------|------|------|
-| 1 | [Claude Code 시작하기](claude-code/01-getting-started.md) | 설치와 기본 사용법부터 |
-| 2 | [프롬프트 기초](claude/01-prompt-basics.md) | Claude에게 잘 말하는 법 |
-| 3 | [CLAUDE.md 작성 가이드](claude-code/02-claude-md.md) | 프로젝트에 Claude 길들이기 |
-| 4 | [모델 선택 가이드](claude/04-model-guide.md) | 상황에 맞는 모델 고르기 |
-| 5 | [단축키와 슬래시 명령어](claude-code/07-shortcuts-and-commands.md) | 작업 속도 높이기 |
+| 1 | [Claude Code 시작하기](claude-code/01-시작하기.md) | 설치와 기본 사용법부터 |
+| 2 | [프롬프트 기초](claude/01-프롬프트-기초.md) | Claude에게 잘 말하는 법 |
+| 3 | [CLAUDE.md 작성 가이드](claude-code/02-CLAUDE-md-작성-가이드.md) | 프로젝트에 Claude 길들이기 |
+| 4 | [모델 선택 가이드](claude/04-모델-선택-가이드.md) | 상황에 맞는 모델 고르기 |
+| 5 | [단축키와 슬래시 명령어](claude-code/07-단축키와-명령어.md) | 작업 속도 높이기 |
 | 6 | 나머지 | 필요한 주제 선택 |
 
 ### 경로 B: 이미 사용 중인 분
@@ -37,33 +37,33 @@ Claude Code를 처음 설치하거나, 프롬프트 작성 경험이 없다면 �
 
 | 문서 | 난이도 | 설명 |
 |------|--------|------|
-| [프롬프트 기초](claude/01-prompt-basics.md) | 기초 | 명확한 지시, 역할 부여, 구조화된 출력 |
-| [고급 프롬프팅 기법](claude/02-advanced-prompting.md) | 중급 | CoT, Few-shot, XML 태그, 프롬프트 체이닝 |
-| [시스템 프롬프트 설계](claude/03-system-prompt-design.md) | 중급 | 설계 원칙, 모범 사례, 안티패턴 |
-| [모델 선택 가이드](claude/04-model-guide.md) | 기초 | Opus/Sonnet/Haiku 비교, 상황별 선택 기준 |
-| [확장 사고](claude/05-extended-thinking.md) | 심화 | 확장 사고 모드 활용, budget_tokens 설정 |
-| [도구 사용](claude/06-tool-use.md) | 중급 | 외부 함수 호출, 도구 정의, 구조화된 데이터 추출 |
-| [이미지 입력](claude/07-vision.md) | 중급 | 이미지 분석, 스크린샷 기반 작업, 디자인→코드 변환 |
-| [프롬프트 캐싱](claude/08-prompt-caching.md) | 중급~심화 | 반복 입력 캐싱으로 비용 90% 절감, TTL 관리 |
+| [프롬프트 기초](claude/01-프롬프트-기초.md) | 기초 | 명확한 지시, 역할 부여, 구조화된 출력 |
+| [고급 프롬프팅 기법](claude/02-고급-프롬프팅-기법.md) | 중급 | CoT, Few-shot, XML 태그, 프롬프트 체이닝 |
+| [시스템 프롬프트 설계](claude/03-시스템-프롬프트-설계.md) | 중급 | 설계 원칙, 모범 사례, 안티패턴 |
+| [모델 선택 가이드](claude/04-모델-선택-가이드.md) | 기초 | Opus/Sonnet/Haiku 비교, 상황별 선택 기준 |
+| [확장 사고](claude/05-확장-사고.md) | 심화 | 확장 사고 모드 활용, budget_tokens 설정 |
+| [도구 사용](claude/06-도구-사용.md) | 중급 | 외부 함수 호출, 도구 정의, 구조화된 데이터 추출 |
+| [이미지 입력](claude/07-이미지-입력.md) | 중급 | 이미지 분석, 스크린샷 기반 작업, 디자인→코드 변환 |
+| [프롬프트 캐싱](claude/08-프롬프트-캐싱.md) | 중급~심화 | 반복 입력 캐싱으로 비용 90% 절감, TTL 관리 |
 
 ### Part 2: Claude Code 활용
 
 | 문서 | 난이도 | 설명 |
 |------|--------|------|
-| [시작하기](claude-code/01-getting-started.md) | 기초 | 설치, 인증, 기본 명령어, 권한 모드 |
-| [CLAUDE.md 작성 가이드](claude-code/02-claude-md.md) | 기초~중급 | 계층 구조, 작성법, .claude/rules/ 활용 |
-| [커스텀 스킬](claude-code/03-custom-skills.md) | 중급 | SKILL.md 구조, 트리거 키워드, 버전 관리 |
-| [훅 시스템](claude-code/04-hooks.md) | 심화 | 12가지 이벤트, 4가지 타입, 활용 패턴 |
-| [MCP 서버](claude-code/05-mcp-servers.md) | 중급~심화 | MCP 개념, 설정 방법, 주요 서버 소개 |
-| [실전 워크플로우](claude-code/06-workflow.md) | 중급~심화 | Git 연동, 멀티에이전트, 컨텍스트 관리 |
-| [단축키와 슬래시 명령어](claude-code/07-shortcuts-and-commands.md) | 기초 | 키보드 단축키, 슬래시 명령어 전체 레퍼런스 |
-| [하네스 엔지니어링](claude-code/08-harness-engineering.md) | 중급~심화 | 프롬프트 vs 하네스 비교, 6대 레이어, 설계 원칙, 전환 패턴 |
+| [시작하기](claude-code/01-시작하기.md) | 기초 | 설치, 인증, 기본 명령어, 권한 모드 |
+| [CLAUDE.md 작성 가이드](claude-code/02-CLAUDE-md-작성-가이드.md) | 기초~중급 | 계층 구조, 작성법, .claude/rules/ 활용 |
+| [커스텀 스킬](claude-code/03-커스텀-스킬.md) | 중급 | SKILL.md 구조, 트리거 키워드, 버전 관리 |
+| [훅 시스템](claude-code/04-훅-시스템.md) | 심화 | 12가지 이벤트, 4가지 타입, 활용 패턴 |
+| [MCP 서버](claude-code/05-MCP-서버-연동.md) | 중급~심화 | MCP 개념, 설정 방법, 주요 서버 소개 |
+| [실전 워크플로우](claude-code/06-실전-워크플로우.md) | 중급~심화 | Git 연동, 멀티에이전트, 컨텍스트 관리 |
+| [단축키와 슬래시 명령어](claude-code/07-단축키와-명령어.md) | 기초 | 키보드 단축키, 슬래시 명령어 전체 레퍼런스 |
+| [하네스 엔지니어링](claude-code/08-하네스-엔지니어링.md) | 중급~심화 | 프롬프트 vs 하네스 비교, 6대 레이어, 설계 원칙, 전환 패턴 |
 
 ### 부록
 
 | 문서 | 설명 |
 |------|------|
-| [트러블슈팅](appendix/troubleshooting.md) | 자주 겪는 문제와 해결법 |
+| [트러블슈팅](appendix/문제-해결.md) | 자주 겪는 문제와 해결법 |
 
 ---
 
@@ -82,7 +82,7 @@ Claude Code를 처음 설치하거나, 프롬프트 작성 경험이 없다면 �
 | `spec-writer` | 대화형 인터뷰를 통해 IEEE 830 표준 기반 시스템 요구사항 명세서(SRS) 작성 |
 | `study-helper` | 기술 학습 노트의 AI 냄새 제거, 오타 수정, 팩트체크 수행 후 검수 리포트 제공 |
 
-커스텀 스킬을 직접 만들고 싶다면 [커스텀 스킬 문서](claude-code/03-custom-skills.md)와 함께 `skills/` 디렉토리의 실제 스킬 파일들을 참고하면 좋습니다.
+커스텀 스킬을 직접 만들고 싶다면 [커스텀 스킬 문서](claude-code/03-커스텀-스킬.md)와 함께 `skills/` 디렉토리의 실제 스킬 파일들을 참고하면 좋습니다.
 
 ---
 
