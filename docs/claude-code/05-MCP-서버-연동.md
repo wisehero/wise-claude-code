@@ -43,8 +43,8 @@ claude mcp add github -- npx @anthropic-ai/github-mcp
 CLI로 추가하면 설정이 `~/.claude/.mcp.json`(글로벌) 또는 `.mcp.json`(프로젝트)에 자동으로 기록된다. 범위를 지정하려면 `-s` 플래그를 사용한다.
 
 ```bash
-claude mcp add -s local github -- npx @anthropic-ai/github-mcp   # 현재 프로젝트에만 적용
-claude mcp add -s user github -- npx @anthropic-ai/github-mcp    # 모든 프로젝트에 적용
+claude mcp add --scope local github -- npx @anthropic-ai/github-mcp   # 현재 프로젝트에만 적용
+claude mcp add --scope user github -- npx @anthropic-ai/github-mcp    # 모든 프로젝트에 적용
 ```
 
 ### 설정 파일로 추가
@@ -83,7 +83,7 @@ MCP 서버 설정은 두 범위로 나뉜다.
 ### 글로벌 설정
 
 ```
-~/.claude/.mcp.json
+~/.claude.json
 ```
 
 모든 프로젝트에서 공통으로 사용할 MCP 서버를 등록한다. 개인 개발 환경에서 자주 쓰는 서버(GitHub, Notion 등)는 글로벌로 등록해두면 프로젝트마다 반복 설정할 필요가 없다.

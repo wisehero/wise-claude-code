@@ -27,7 +27,7 @@ CLAUDE.md는 사실상 프로젝트 전용 시스템 프롬프트로 동작한�
 
 ## 계층 구조
 
-CLAUDE.md는 세 개의 계층으로 동작하며, 계층마다 적용 범위와 관리 주체가 다르다.
+CLAUDE.md는 네 개의 계층으로 동작하며, 계층마다 적용 범위와 관리 주체가 다르다.
 
 ### 1. 관리 정책 레벨 (Enterprise)
 
@@ -37,9 +37,9 @@ CLAUDE.md는 세 개의 계층으로 동작하며, 계층마다 적용 범위와
 
 | OS | 경로 |
 |---|---|
-| macOS | `/Library/Application Support/ClaudeCode/policies/CLAUDE.md` |
-| Linux | `/etc/claude-code/policies/CLAUDE.md` |
-| Windows | `C:\ProgramData\ClaudeCode\policies\CLAUDE.md` |
+| macOS | `/Library/Application Support/ClaudeCode/CLAUDE.md` |
+| Linux | `/etc/claude-code/CLAUDE.md` |
+| Windows | `C:\Program Files\ClaudeCode\CLAUDE.md` |
 
 ### 2. 프로젝트 레벨
 
@@ -52,7 +52,11 @@ CLAUDE.md는 세 개의 계층으로 동작하며, 계층마다 적용 범위와
 
 이 파일은 git에 커밋해 팀 전체가 공유한다. 프로젝트의 코딩 스타일, 테스트 방법, 아키텍처 결정 등 팀 전체에 적용할 지침을 담는다.
 
-### 3. 사용자 레벨
+### 3. 하위 디렉토리 레벨
+
+프로젝트의 하위 디렉토리에 `CLAUDE.md` 파일을 추가로 둘 수 있다. Claude가 해당 디렉토리의 파일을 작업할 때 온디맨드(on-demand)로 로드된다. 대규모 모노레포에서 서비스별로 다른 지침을 적용할 때 유용하다.
+
+### 4. 사용자 레벨
 
 특정 프로젝트가 아닌 사용자 개인에게 항상 적용되는 설정이다.
 
@@ -65,7 +69,7 @@ CLAUDE.md는 세 개의 계층으로 동작하며, 계층마다 적용 범위와
 ### 우선순위
 
 ```
-관리 정책 > 프로젝트 > 사용자
+관리 정책 > 프로젝트 > 하위 디렉토리 > 사용자
 ```
 
 하위 계층의 지침이 상위 계층과 충돌하면 상위 계층이 이긴다. 각 계층의 내용은 합산되어 Claude에게 전달되므로, 중복 없이 적절한 계층에 지침을 배치하는 것이 중요하다.
