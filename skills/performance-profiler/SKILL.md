@@ -1,7 +1,11 @@
 ---
 name: performance-profiler
-version: 1.0.0
+version: 1.1.0
 description: Java/Spring 성능 병목 정적 분석 스킬. 코드를 분석하여 N+1 쿼리, 비효율적 알고리즘, 메모리 낭비, 느린 API 응답 원인을 찾고 최적화 방안을 제시한다. "성능 분석해줘", "느린 부분 찾아줘", "성능 개선", "최적화 해줘", "N+1 문제 확인", "쿼리 성능", "메모리 누수", "API 느림", "응답 시간 개선" 같은 요청에 사용.
+allowed-tools:
+  - Read
+  - Grep
+  - Glob
 ---
 
 # Performance Profiler

@@ -1,7 +1,11 @@
 ---
 name: refactor-advisor
-version: 1.0.0
+version: 1.1.0
 description: Java/Spring 코드 리팩토링 어드바이저. 지정된 파일, 클래스, 패키지를 분석하여 코드 스멜, SOLID 위반, 디자인 패턴 적용 기회를 식별하고 리팩토링 대안과 트레이드오프를 제시한다. "리팩토링 해줘", "코드 개선해줘", "이 클래스 정리 좀", "코드 스멜 찾아줘", "코드 품질 분석", "SOLID 위반 확인", "God Class 분리", "중복 코드 제거" 같은 요청에 사용. 코드 리뷰와 달리 구조적 개선에 초점을 맞춘다.
+allowed-tools:
+  - Read
+  - Grep
+  - Glob
 ---
 
 # Refactor Advisor
