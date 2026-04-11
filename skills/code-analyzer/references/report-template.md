@@ -1,17 +1,21 @@
 # 코드 분석 리포트 템플릿
 
-리포트 작성 시 아래 구조를 따른다. `[대괄호]` 안의 내용은 실제 분석 결과로 대체한다.
+이 파일은 `SKILL.md`의 5단계 인라인 형식에 대응하는 완전한 예시다. SKILL.md의 섹션 순서·컬럼·소항목과 정확히 일치해야 한다. 템플릿을 수정할 때는 반드시 SKILL.md 5단계도 함께 수정한다.
+
+`[대괄호]` 안의 내용은 실제 분석 결과로 대체한다.
 
 ````markdown
-# 코드 분석 리포트: [분석 대상]
+---
+analyzed_at: YYYY-MM-DD
+scope: [분석 범위 경로]
+language: [감지된 언어/프레임워크]
+---
 
-> 분석일: YYYY-MM-DD
-> 분석 범위: [파일/모듈/프로젝트 경로]
-> 언어: [감지된 언어/프레임워크]
+# 코드 분석 리포트: [분석 대상]
 
 ---
 
-## 1. 구조 개요
+## 섹션 1: 구조 개요
 
 ### 핵심 구성 요소
 
@@ -25,66 +29,78 @@
 graph TD
     A[ComponentA] --> B[ComponentB]
     A --> C[ComponentC]
-    B --> D[ExternalService]
+    B --> D[(ExternalDB)]
 ```
+
+노드명은 실제 클래스/모듈명을 그대로 쓴다. 외부 의존성(DB, 외부 API, 서드파티 라이브러리)은 별도 모양(`[()]`, `{}`)으로 구분한다.
 
 ### 호출 흐름
 
-주요 진입점에서 시작하는 호출 순서를 요약한다.
+진입점에서 최종 호출 대상까지 순번 목록으로.
 
 1. `EntryPoint.method()` → `ServiceA.process()`
 2. `ServiceA.process()` → `RepositoryB.find()`
-3. ...
+3. `RepositoryB.find()` → `Database`
 
 ---
 
-## 2. 비즈니스 로직 분석
+## 섹션 2: 비즈니스 로직 분석
 
-### 핵심 기능 요약
+각 주요 기능마다 아래 4개 소항목을 **반드시 모두** 포함한다. 생략·추가 금지. 기능명은 코드에서 실제 쓰는 이름으로.
 
-각 주요 기능이 무엇을 하는지 자연어로 설명한다.
+### [실제 기능명 1 — 예: `PaymentService.processPayment`]
 
-#### [기능명 1]
 - **목적**: 이 기능이 해결하는 문제
 - **흐름**: 입력 → 처리 과정 → 출력
-- **핵심 규칙**: 비즈니스 규칙이나 조건 분기
+- **핵심 규칙**: 비즈니스 규칙, 조건 분기, 유효성 검증
 - **데이터 흐름**: 어떤 데이터가 어디서 생성되어 어디로 전달되는지
 
-#### [기능명 2]
-- ...
+### [실제 기능명 2]
+
+- **목적**: ...
+- **흐름**: ...
+- **핵심 규칙**: ...
+- **데이터 흐름**: ...
 
 ---
 
-## 3. 시퀀스 다이어그램
+## 섹션 3: 시퀀스 다이어그램
 
-기능 단위로 객체 간 상호작용을 시퀀스 다이어그램으로 표현한다.
+주요 기능마다 시퀀스 다이어그램 1개. `participant`는 실제 코드의 클래스/모듈명을 쓴다 — `Client`, `Controller` 같은 추상명은 금지.
 
 ### [기능명] 시퀀스
 
 ```mermaid
 sequenceDiagram
-    participant Client
-    participant Controller
-    participant Service
-    participant Repository
-    participant DB
+    participant BrowserClient
+    participant PaymentController
+    participant PaymentService
+    participant PaymentRepository
+    participant PostgresDB
 
-    Client->>Controller: 요청
-    Controller->>Service: 처리 위임
-    Service->>Repository: 데이터 조회
-    Repository->>DB: 쿼리 실행
-    DB-->>Repository: 결과
-    Repository-->>Service: 엔티티
-    Service-->>Controller: 응답 DTO
-    Controller-->>Client: 응답
+    BrowserClient->>PaymentController: POST /payments
+    PaymentController->>PaymentService: processPayment(dto)
+    PaymentService->>PaymentRepository: save(entity)
+    PaymentRepository->>PostgresDB: INSERT payments
+    PostgresDB-->>PaymentRepository: row
+    PaymentRepository-->>PaymentService: Payment
+    PaymentService-->>PaymentController: PaymentResponseDto
+    PaymentController-->>BrowserClient: 201 Created
+
+    alt 잔액 부족
+        PaymentService-->>PaymentController: InsufficientFundsException
+        PaymentController-->>BrowserClient: 402 Payment Required
+    end
 ```
 
-(분석 대상에 포함된 주요 기능별로 각각 작성)
+분기/예외 흐름은 `alt/else` 블록으로 표현한다. 요청 `->>`와 응답 `-->>`를 일관되게 구분한다.
 
 ---
 
-## 4. 참고 사항 (선택)
+## 섹션 4: 참고 사항
 
-분석 중 발견된 특이사항, 주의할 점, 또는 추가 분석이 필요한 부분:
-- (예: "이 모듈은 순환 의존성이 있어 구조 파악 시 주의 필요")
+순환 의존성, 사용되지 않는 심볼, 추가 분석이 필요한 지점 등 특이사항만 기록한다. 특이사항이 없으면 **이 섹션을 생략해도 된다**.
+
+- (예) 순환 의존성: `ModuleA` ↔ `ModuleB` — 진입점 판단 시 주의 필요
+- (예) `LegacyHelper.oldMethod()`는 호출처가 발견되지 않음 — 추가 조사 필요
 ````
