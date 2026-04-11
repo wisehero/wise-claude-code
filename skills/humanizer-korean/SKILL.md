@@ -1,6 +1,6 @@
 ---
-name: humanizer
-version: 3.1.0
+name: humanizer-korean
+version: 3.1.1
 description: |
   AI가 쓴 티를 제거하는 글쓰기 편집 스킬. 한국어 텍스트를 주력으로, 영어도 지원.
   Wikipedia의 "Signs of AI writing" 가이드와 한국어 AI 글쓰기 패턴 연구를 기반으로
