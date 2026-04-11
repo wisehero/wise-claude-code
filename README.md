@@ -1,8 +1,10 @@
 # wise-claude-code
 
-개인 작업용 Claude Code 커스텀 스킬 모음 + Claude/Claude Code 학습 자료.
+개인 작업용 Claude Code 커스텀 스킬 모음.
 
 한국어 중심. 새 스킬 추가·수정 시 반드시 루트의 `The-Complete-Guide-to-Building-Skill-for-Claude.pdf`와 `CLAUDE.md`의 규칙을 따른다.
+
+> 📚 **Claude / Claude Code 한국어 학습 자료는 별도 레포로 분리되었습니다** → [wise-claude-docs](https://github.com/wisehero/wise-claude-docs) · [웹뷰](https://wisehero.github.io/wise-claude-docs/skill-guide/)
 
 ---
 
@@ -11,7 +13,6 @@
 ```
 .
 ├── skills/                                        # 커스텀 스킬 8개
-├── docs/                                          # Claude / Claude Code 학습 가이드 (한국어)
 ├── CLAUDE.md                                      # 이 레포 작업 규칙 (semver, 템플릿-지시문 일관성)
 └── The-Complete-Guide-to-Building-Skill-for-Claude.pdf   # 앤트로픽 공식 스킬 가이드
 ```
@@ -69,8 +70,3 @@ ln -s "$(pwd)/skills/code-analyzer" ~/.claude/skills/code-analyzer
 2. **Semver 버전 관리** — 모든 `SKILL.md`에 `version` 필드. patch(오타) / minor(지시문·기능 개선) / major(목적·워크플로우 변경)
 3. **템플릿-지시문 일관성** — `references/`에 템플릿이 있으면 `SKILL.md` 지시문에도 동일한 형식(섹션 순서·컬럼·필수 항목)을 **인라인으로** 명시한다. "템플릿 참조하라"는 한 줄로 끝내면 산출물 품질이 흔들린다.
 
----
-
-## 학습 자료 (docs/)
-
-Claude API/SDK와 Claude Code 활용 가이드가 한국어로 정리되어 있다. [docs/README.md](docs/README.md) 참고.
