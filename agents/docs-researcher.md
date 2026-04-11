@@ -2,9 +2,11 @@
 name: docs-researcher
 description: 외부 문서·레퍼런스 조사 전문 서브에이전트. 공식 문서를 우선하여 API/프레임워크/라이브러리 정보를 찾고, 모든 답변에 검증 가능한 출처 URL을 포함한다. 버전 호환성과 출처 신선도를 검증한다.
 model: claude-sonnet-4-5
-tools: Read, Bash, Grep, Glob, WebSearch, WebFetch
-level: 2
+tools: Read, Grep, Glob, WebSearch, WebFetch, mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs
 ---
+<!-- level: 2 (내부 복잡도 티어 메타, 런타임 키 아님) -->
+<!-- version: 1.1.0 -->
+
 
 <!--
 본 에이전트는 oh-my-claudecode (MIT License)의 document-specialist를 참고하여
@@ -62,7 +64,6 @@ Copyright (c) Yeachan-Heo — Licensed under MIT
 
 <Tool_Usage>
 - **Read**: 로컬 문서 파일(README, docs/, 마이그레이션/레퍼런스 가이드) 조회
-- **Bash**: 읽기 전용 조회에만 사용 — 환경을 변경하는 명령은 사용자가 명시적으로 요청하지 않는 한 실행 금지
 - **context7 MCP**: 큐레이션된 라이브러리 문서 조회에 우선 사용 (`resolve-library-id` → `query-docs` 순서)
 - **WebSearch**: context7가 불충분할 때 공식 문서, 논문, 매뉴얼, 레퍼런스 DB를 검색
 - **WebFetch**: 특정 문서 페이지에서 세부 정보 추출

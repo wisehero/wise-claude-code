@@ -1,10 +1,11 @@
 ---
 name: external-context
-version: 1.0.0
+version: 1.1.0
 description: 쿼리를 2-5개 facet으로 분해한 뒤 병렬 docs-researcher 서브에이전트를 호출하여 외부 문서·레퍼런스를 통합 수집하는 스킬. "공식 문서 찾아줘", "~에 대해 조사해줘", "베스트 프랙티스 찾아줘", "버전별 차이 알려줘", "~랑 ~ 비교해줘" 같은 요청에 사용. 팩트체크, 라이브러리 선택, 패턴 리서치, 버전 호환성 확인 등에 활용한다.
 argument-hint: <검색 쿼리 또는 주제>
-level: 4
 ---
+<!-- level: 4 (내부 복잡도 티어 메타, 런타임 키 아님) -->
+
 
 # External Context
 
@@ -50,12 +51,12 @@ level: 4
 
 ### 2단계: 병렬 서브에이전트 호출
 
-각 facet을 `Task` 도구로 `docs-researcher` 서브에이전트에게 병렬 디스패치한다. 모든 호출은 **단일 메시지 내 병렬 tool_use 블록**으로 묶어야 한다 — 순차 호출하면 병렬화의 이득이 사라진다.
+각 facet을 `Agent` 도구로 `docs-researcher` 서브에이전트에게 병렬 디스패치한다. 모든 호출은 **단일 메시지 내 병렬 tool_use 블록**으로 묶어야 한다 — 순차 호출하면 병렬화의 이득이 사라진다.
 
 ```
-Task(subagent_type="docs-researcher", prompt="검색 대상: <facet 1 설명>. context7 MCP와 WebSearch/WebFetch로 공식 문서와 예시를 찾고, 모든 출처를 URL과 함께 인용하라. 버전 호환성과 출처 신선도를 플래그하라.")
+Agent(subagent_type="docs-researcher", description="facet 1 리서치", prompt="검색 대상: <facet 1 설명>. context7 MCP와 WebSearch/WebFetch로 공식 문서와 예시를 찾고, 모든 출처를 URL과 함께 인용하라. 버전 호환성과 출처 신선도를 플래그하라.")
 
-Task(subagent_type="docs-researcher", prompt="검색 대상: <facet 2 설명>. context7 MCP와 WebSearch/WebFetch로 공식 문서와 예시를 찾고, 모든 출처를 URL과 함께 인용하라. 버전 호환성과 출처 신선도를 플래그하라.")
+Agent(subagent_type="docs-researcher", description="facet 2 리서치", prompt="검색 대상: <facet 2 설명>. context7 MCP와 WebSearch/WebFetch로 공식 문서와 예시를 찾고, 모든 출처를 URL과 함께 인용하라. 버전 호환성과 출처 신선도를 플래그하라.")
 ```
 
 **최대 병렬 서브에이전트 수: 5**
@@ -114,8 +115,10 @@ Task(subagent_type="docs-researcher", prompt="검색 대상: <facet 2 설명>. c
 - 해결: 이 스킬을 쓰지 말고 직접 `docs-researcher` 에이전트를 1회 호출하거나 WebSearch를 직접 사용
 
 **docs-researcher 에이전트를 찾을 수 없는 경우**
-- 원인: `agents/docs-researcher.md`가 설치되지 않았거나 Claude Code가 재시작되지 않아 로드되지 않음
-- 해결: `~/.claude/agents/docs-researcher.md` 존재 여부 확인 후 Claude Code 재시작
+- 원인: `docs-researcher.md`가 설치되지 않았거나 Claude Code가 재시작되지 않아 로드되지 않음
+- 해결: 아래 두 경로 중 하나에 파일이 있는지 확인 후 Claude Code 재시작
+  - 레포-로컬 설치: `<repo>/agents/docs-researcher.md` (이 레포의 기본 위치)
+  - 글로벌 설치: `~/.claude/agents/docs-researcher.md`
 
 **context7 MCP가 응답하지 않는 경우**
 - 원인: MCP 서버 연결 실패
