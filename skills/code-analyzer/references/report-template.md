@@ -69,7 +69,7 @@ graph TD
 
 ## 섹션 3: 시퀀스 다이어그램
 
-주요 기능마다 시퀀스 다이어그램 1개. `participant`는 실제 코드의 클래스/모듈명을 쓴다 — `Client`, `Controller` 같은 추상명은 금지.
+주요 기능마다 시퀀스 다이어그램 1개. `participant`는 실제 코드의 클래스/모듈명을 쓴다 — `Client`, `Controller`, `Service` 같은 범용 추상명을 **라벨 없이 단독**으로 쓰지 않는다. 구체 타입이 범위 밖인 외부 호출자는 **반드시 `as "<설명>"` 보조 라벨**을 병기한다 (예: `participant Client as "HTTP Client"`, `participant Queue as "Job Queue"`). SKILL.md 섹션 3의 판정 규칙과 동일.
 
 ### [기능명] 시퀀스
 

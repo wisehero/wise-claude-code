@@ -1,6 +1,6 @@
 ---
 name: code-analyzer
-version: 1.4.1
+version: 1.4.2
 description: 코드베이스의 구조와 비즈니스 로직을 분석하여 mermaid 다이어그램 포함 리포트를 생성하는 스킬. 클래스/함수 관계, 의존성 흐름, 호출 구조를 파악하고 비즈니스 로직을 자연어로 설명한다. "코드 분석해줘", "이 코드가 뭐하는 거야", "구조 파악해줘", "비즈니스 로직 설명해줘", "이 모듈 분석", "코드 흐름 알려줘", "아키텍처 분석", "코드 읽어줘" 같은 요청에 사용. 레거시 코드 파악, 온보딩용 코드 이해, PR 리뷰 전 코드 파악, "이 프로젝트 어떻게 되어있어?", "이 기능 어떻게 동작해?" 같은 간접적 분석 요청에도 반드시 사용한다.
 allowed-tools:
   - Read
@@ -264,7 +264,12 @@ mode: detailed  # detailed | overview — overview는 섹션 2/3 생략 허용
 
 **섹션 3: 시퀀스 다이어그램** (`mode: detailed`에서 필수, `overview`에서 생략 허용)
 - 주요 기능마다 `sequenceDiagram` 1개
-- `participant`는 실제 클래스/모듈명 (`Client`, `Service` 같은 추상명 금지) — 단 **외부 HTTP 클라이언트처럼 구체 타입이 범위 밖**이면 `participant HttpClient as "HTTP Client"` 같이 `as "<설명>"` 보조 라벨로 회피 가능
+- `participant`는 실제 클래스/모듈명 사용. `Client`, `Service`, `Controller` 같은 범용 추상명을 **라벨 없이 단독**으로 쓰지 않는다 — 단독으로 쓰면 리포트를 읽은 사람이 실제 코드에서 그 participant가 어떤 클래스인지 찾을 수 없다.
+- **구체 타입이 범위 밖인 외부 호출자는 반드시 보조 라벨을 병기한다** (회피가 아니라 필수 규칙). 이 규칙은 언어 무관하게 적용된다:
+  - HTTP 요청을 시작하는 쪽 → `participant Client as "HTTP Client"` 또는 `participant Browser as "Browser"`
+  - 외부 시스템 콜 → `participant PaymentGateway as "External Payment API"` 또는 `participant SMTP as "SMTP Server"`
+  - 메시지 큐/비동기 워커 → `participant Queue as "Job Queue"` (php-hints/java-spring-hints 예시 참조)
+- **판정 규칙**: 단독 `participant Client` / `participant Controller` / `participant Service` 같이 구체 클래스가 아닌 일반 명사로 끝나는 participant가 하나라도 있으면 시퀀스 다이어그램을 다시 작성한다. 본 스킬의 "실제 이름을 보존한다" 원칙(핵심 원칙 #1)의 직접 적용이다.
 - 요청 `->>`와 응답 `-->>`를 구분
 - 분기는 `alt/else` 블록 사용
 - 섹션 2가 탈출 조항으로 생략되었다면 섹션 3도 생략한다 (시퀀스는 흐름의 시각화이므로 흐름 분석이 없으면 의미 없음)
