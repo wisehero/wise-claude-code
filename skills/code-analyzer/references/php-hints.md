@@ -61,7 +61,7 @@ Route → Middleware → Controller → Form Request → Service → Model (Eloq
 
 ## Grep 패턴 치트시트
 
-PHP 특화 패턴. SKILL.md 2단계의 일반 Grep 대신/추가로 쓴다.
+PHP 특화 패턴. SKILL.md 2단계의 기본 Grep 패턴을 **대체**한다. 아래 테이블에 없는 범주(예: 기본 의존성 패턴 중 PHP에 해당하는 것)만 SKILL.md 기본 패턴으로 **보충**한다.
 
 | 찾을 대상 | Grep 패턴 |
 |---|---|
