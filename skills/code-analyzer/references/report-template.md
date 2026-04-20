@@ -9,6 +9,7 @@
 analyzed_at: YYYY-MM-DD
 scope: [분석 범위 경로]
 language: [감지된 언어/프레임워크]
+mode: detailed  # detailed | overview
 ---
 
 # 코드 분석 리포트: [분석 대상]
@@ -47,6 +48,8 @@ graph TD
 ## 섹션 2: 비즈니스 로직 분석
 
 각 주요 기능마다 아래 4개 소항목을 **반드시 모두** 포함한다. 생략·추가 금지. 기능명은 코드에서 실제 쓰는 이름으로.
+
+> **탈출 조항**: 본문이 빈 stub, 단순 위임 어댑터, enum/DTO record 전용, 본문 Read 불가 같은 상황에서는 SKILL.md의 "섹션 2 탈출 조항"을 적용해 이 섹션 전체 또는 개별 기능 항목을 생략하고 **생략 사유**를 한 단락으로 기록한다. `mode: overview`에서도 동일하게 적용된다.
 
 ### [실제 기능명 1 — 예: `PaymentService.processPayment`]
 
