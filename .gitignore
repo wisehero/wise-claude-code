@@ -1,5 +1,6 @@
-# Claude Code 설정
-.claude/
+# Claude Code 설정 (커맨드는 레포에서 공유)
+.claude/*
+!.claude/commands/
 
 # oh-my-claudecode 설정
 .omc/
