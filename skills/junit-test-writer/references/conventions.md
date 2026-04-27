@@ -85,6 +85,55 @@ assertThatCode(() -> service.execute())
     .doesNotThrowAnyException();
 ```
 
+### 단일 chained 검증 표현 (권장)
+
+`assertThat`을 여러 개 흩뿌리지 말고, AssertJ chained API로 **하나의 검증 표현**으로 합치는 것을 우선한다.
+
+```java
+// ❌ 흩뿌린 assertThat
+assertThat(order).isNotNull();
+assertThat(order.getId()).isEqualTo(1L);
+assertThat(order.getStatus()).isEqualTo(PENDING);
+
+// ✅ extracting — 여러 필드를 하나의 표현으로
+assertThat(order)
+    .isNotNull()
+    .extracting(Order::getId, Order::getStatus)
+    .containsExactly(1L, PENDING);
+
+// ✅ usingRecursiveComparison — 객체 전체 비교
+assertThat(order)
+    .usingRecursiveComparison()
+    .isEqualTo(expectedOrder);
+
+// ✅ hasFieldOrPropertyValue — 단일 필드만 간결히
+assertThat(order).hasFieldOrPropertyValue("status", PENDING);
+
+// ✅ satisfies — 필드 간 관계나 복잡 조건
+assertThat(order).satisfies(o -> {
+    assertThat(o.getCreatedAt()).isBefore(o.getUpdatedAt());
+    assertThat(o.getAmount()).isPositive();
+});
+
+// 컬렉션 — 요소별 필드 검증도 extracting으로
+assertThat(orders)
+    .extracting(Order::getStatus)
+    .containsExactly(PENDING, PENDING, CANCELLED);
+```
+
+**판단 기준**
+
+| 상황 | 사용할 표현 |
+|---|---|
+| 한 객체의 여러 필드 검증 | `extracting(...)` 또는 `usingRecursiveComparison()` |
+| 한 필드만 검증 | `assertThat(obj.getField()).isEqualTo(...)` 또는 `hasFieldOrPropertyValue` |
+| 필드 간 관계·복잡 조건 | `satisfies(...)` |
+| 같은 검증 패턴이 2회 이상 반복 | 헬퍼 메서드 추출 (아래 5번 참조) |
+
+**규칙**: `assertThat`이 2개 이상이면 위 표현 중 하나로 합칠 수 있는지 **먼저 검토**한다. 합칠 수 없을 때만 분리 유지하고, 그 이유가 명확해야 한다.
+
+**합치기 대상이 아닌 경우**: `assertThat` + `then(...).should()`는 검증의 종류가 다르다(상태 vs 상호작용). 같은 메서드 안에 둘이 함께 등장하는 것은 정상이다.
+
 ## Mock 스타일
 
 ### BDDMockito 사용
@@ -357,5 +406,6 @@ class OrderControllerTest {
 | 여러 테스트에서 동일한 객체 생성 | `@BeforeEach` 또는 Fixture 클래스 |
 | 비슷한 조건의 테스트가 나열됨    | `@Nested`로 그룹화                |
 | 입력값만 다른 동일한 테스트      | `@ParameterizedTest`              |
-| 반복되는 assertion 패턴          | 헬퍼 메서드 추출                  |
+| 한 객체의 여러 필드 `assertThat` | `extracting` / `usingRecursiveComparison` / `hasFieldOrPropertyValue` |
+| 같은 assertion 패턴이 2회 이상 반복 | 헬퍼 메서드 추출                  |
 | 테스트 클래스가 500줄 이상       | 클래스 분리 고려                  |

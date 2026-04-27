@@ -185,15 +185,17 @@ class OrderServiceTest {
         @DisplayName("존재하는 주문 ID로 조회하면 주문이 반환된다")
         void should_returnOrder_when_validId() {
             // given
-            var order = Order.builder().id(1L).build();
+            var order = Order.builder().id(1L).status(OrderStatus.PENDING).build();
             given(orderRepository.findById(1L)).willReturn(Optional.of(order));
 
             // when
             var result = orderService.getOrder(1L);
 
-            // then
-            assertThat(result).isNotNull();
-            assertThat(result.getId()).isEqualTo(1L);
+            // then — extracting으로 단일 chained 검증 표현
+            assertThat(result)
+                .isNotNull()
+                .extracting(Order::getId, Order::getStatus)
+                .containsExactly(1L, OrderStatus.PENDING);
         }
 
         @Test

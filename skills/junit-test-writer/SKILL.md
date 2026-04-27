@@ -1,6 +1,6 @@
 ---
 name: junit-test-writer
-version: 1.1.0
+version: 1.2.0
 description: Java/Spring **전용** JUnit 5 테스트 코드 작성 스킬. 단위 테스트, 슬라이스 테스트(@WebMvcTest, @DataJpaTest), 통합 테스트(@SpringBootTest)를 작성한다. "테스트 코드 작성해줘", "~에 대한 테스트 만들어줘", "단위 테스트 추가해줘", "통합 테스트 작성", "테스트 케이스 추가", "커버리지 높여줘", "테스트 없는 코드에 테스트 추가" 같은 요청에 사용. **Java가 아닌 언어(PHP·Python·JavaScript·Ruby 등)는 범위 밖** — 해당 언어로 테스트 요청이 들어오면 Step 1에서 즉시 거절한다. Kotlin 프로젝트는 기본 거절, 사용자 명시 opt-in 시에만 JUnit 5 + MockK/Kotest 혼용으로 진행.
 allowed-tools: [Read, Write, Edit, Glob, Grep, Bash]
 ---
@@ -187,7 +187,13 @@ void should_throwException_when_emptyItems() {
 ### Java/Spring 가드 통과
 - build file: <build.gradle / pom.xml>
 - JUnit 버전: <5.x / 4.x opt-in>
+
+### Assertion 합치기 점검
+- `assertThat`이 2개 이상인 테스트: <없음 / 메서드명 목록>
+- 합치기 시도: <extracting / usingRecursiveComparison / satisfies / hasFieldOrPropertyValue / 헬퍼 추출 / 합칠 수 없어 분리 유지 + 사유>
 ```
+
+> **assertThat 합치기 점검의 의미**: 한 테스트에 `assertThat`이 2개 이상 있으면 사용자에게 보이기 전에 단일 chained 표현으로 합칠 수 있는지 먼저 검토한다. `references/conventions.md`의 "단일 chained 검증 표현" 절을 본다. 합칠 수 없는 정당한 사유(예: 검증 종류가 다름 — `assertThat` + `then(...).should()`)가 있을 때만 분리를 유지하고, 그 사유를 프리뷰에 한 줄로 명시한다.
 
 **② 확인 응답 프로토콜**
 
@@ -415,8 +421,8 @@ class OrderIntegrationTest {
 | 구조 | Given-When-Then 주석 필수 |
 | Assertion | AssertJ 사용 (`assertThat`) |
 | Mock | BDDMockito 사용 (`given`, `willReturn`) |
-| 검증 원칙 | 하나의 테스트에 하나의 논리적 검증 |
-| 안티패턴 | 구현이 아닌 행위를 테스트. `verify()`는 외부 부수효과에만 사용 |
+| 검증 원칙 | 하나의 테스트 = 하나의 chained 검증 표현이 우선. `assertThat`이 2개 이상이면 `extracting` / `usingRecursiveComparison` / `satisfies` / `hasFieldOrPropertyValue` / 헬퍼 메서드로 합칠 수 있는지 먼저 검토. 합칠 수 없을 때만 분리 유지. (단, `assertThat` + `then(...).should()`는 검증 종류가 달라 합치기 대상이 아님) |
+| 안티패턴 | 구현이 아닌 행위를 테스트. 한 테스트에 서로 다른 행위·시나리오 혼합 금지. `verify()`는 외부 부수효과에만 사용 |
 | 성능 | 슬라이스로 충분하면 `@SpringBootTest` 사용 금지 |
 | 경계값 | 0, null, 빈 값, max 등 경계값을 의식적으로 커버 |
 | 예외 검증 | 타입뿐 아니라 메시지, 에러 코드까지 검증 |
