@@ -5,8 +5,5 @@
 # oh-my-claudecode 설정
 .omc/
 
-# 스킬 가이드 PDF
-The-Complete-Guide-to-Building-Skill-for-Claude.pdf
-
 # skill-creator eval workspaces (재현 가능한 대용량 산출물 — git에 저장하지 않음)
 skills/*-workspace/

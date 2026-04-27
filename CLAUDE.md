@@ -7,7 +7,7 @@
 
 ## Skill 작성·수정·개선 규칙
 
-스킬을 작성, 수정, 검토할 때는 반드시 `The-Complete-Guide-to-Building-Skill-for-Claude.pdf`를 먼저 읽고 해당 가이드의 규칙을 따른다.
+스킬을 작성, 수정, 검토할 때는 반드시 Anthropic 공식 가이드 — <https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf> — 를 먼저 읽고 해당 가이드의 규칙을 따른다. WebFetch 도구로 가져올 수 있다.
 
 ### 버전 관리 규칙
 
