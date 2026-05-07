@@ -12,7 +12,7 @@
 
 ```
 .
-├── skills/                                        # 커스텀 스킬 8개
+├── skills/                                        # 커스텀 스킬 10개
 ├── CLAUDE.md                                      # 이 레포 작업 규칙 (semver, 템플릿-지시문 일관성)
 └── The-Complete-Guide-to-Building-Skill-for-Claude.pdf   # 앤트로픽 공식 스킬 가이드
 ```
@@ -25,24 +25,26 @@
 
 | 스킬 | 버전 | 용도 | 대상 스택 |
 |---|---|---|---|
-| [`code-analyzer`](skills/code-analyzer/) | 1.2.0 | 구조 + 비즈니스 로직 분석 → mermaid 리포트 | 언어 무관 (PHP/Laravel 힌트 내장) |
-| [`refactor-advisor`](skills/refactor-advisor/) | 1.0.0 | 리팩토링 대안 + 트레이드오프 제시 | Java / Spring |
-| [`performance-profiler`](skills/performance-profiler/) | 1.0.0 | 성능 병목 정적 분석 (N+1, 메모리 누수 등) | Java / Spring |
-| [`junit-test-writer`](skills/junit-test-writer/) | 1.0.0 | 단위/슬라이스/통합 테스트 작성 | JUnit 5 / Spring Boot |
+| [`code-analyzer`](skills/code-analyzer/) | 1.4.2 | 구조 + 비즈니스 로직 분석 → mermaid 리포트 | 언어 무관 (PHP/Laravel, Java/Spring 힌트 내장) |
+| [`refactor-advisor`](skills/refactor-advisor/) | 1.3.0 | 리팩토링 대안 + 트레이드오프 제시 | Java / Spring |
+| [`performance-profiler`](skills/performance-profiler/) | 1.2.0 | 성능 병목 정적 분석 (N+1, 메모리 누수 등) | Java / Spring |
+| [`junit-test-writer`](skills/junit-test-writer/) | 1.2.0 | 단위/슬라이스/통합 테스트 작성 | JUnit 5 / Spring Boot |
+| [`parallax`](skills/parallax/) | 1.1.0 | 코드베이스 내부 사실 확인성 질문 교차 검증 | 현재 working directory 내부 |
 
 ### 문서·글쓰기
 
 | 스킬 | 버전 | 용도 |
 |---|---|---|
-| [`spec-writer`](skills/spec-writer/) | 1.3.0 | 대화형 인터뷰로 IEEE 830 기반 SRS 작성 |
-| [`humanizer-korean`](skills/humanizer-korean/) | 3.1.0 | 한국어 AI투 제거, 자연스러운 문체로 교정 |
-| [`claude-docs-reviewer`](skills/claude-docs-reviewer/) | 1.0.1 | Claude/Claude Code 공식 문서와 대조하여 학습 자료 오류 검증 |
+| [`spec-writer`](skills/spec-writer/) | 1.4.0 | 대화형 인터뷰로 IEEE 830 기반 SRS 작성 |
+| [`humanizer-korean`](skills/humanizer-korean/) | 3.2.0 | 한국어 AI투 제거, 자연스러운 문체로 교정 |
+| [`claude-docs-reviewer`](skills/claude-docs-reviewer/) | 1.2.0 | Claude/Claude Code 공식 문서와 대조하여 학습 자료 오류 검증 |
+| [`external-context`](skills/external-context/) | 1.2.0 | 외부 문서·레퍼런스 다면 리서치 |
 
 ### 학습 지원
 
 | 스킬 | 버전 | 용도 |
 |---|---|---|
-| [`study-helper`](skills/study-helper/) | 1.0.0 | 노션에 정리한 학습 노트 검수 (AI투 + 오타 + 팩트체크) |
+| [`study-helper`](skills/study-helper/) | 1.3.1 | 노션에 정리한 학습 노트 검수 (AI투 + 오타 + 팩트체크) |
 
 ---
 
@@ -69,4 +71,3 @@ ln -s "$(pwd)/skills/code-analyzer" ~/.claude/skills/code-analyzer
 1. **앤트로픽 공식 가이드** (루트 PDF) — `When to Use / When NOT to Use` 섹션 필수, `description`에 trigger 문구 명시, progressive disclosure(`SKILL.md` 본문은 핵심만, 상세는 `references/`)
 2. **Semver 버전 관리** — 모든 `SKILL.md`에 `version` 필드. patch(오타) / minor(지시문·기능 개선) / major(목적·워크플로우 변경)
 3. **템플릿-지시문 일관성** — `references/`에 템플릿이 있으면 `SKILL.md` 지시문에도 동일한 형식(섹션 순서·컬럼·필수 항목)을 **인라인으로** 명시한다. "템플릿 참조하라"는 한 줄로 끝내면 산출물 품질이 흔들린다.
-
