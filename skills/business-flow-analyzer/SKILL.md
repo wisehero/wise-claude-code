@@ -1,6 +1,6 @@
 ---
 name: business-flow-analyzer
-version: 1.1.0
+version: 1.2.0
 description: Use when the user asks to analyze an API, feature flow, business logic, or "what happens when this is called"; produce a Korean business-policy style flow report with Phase numbering, physical transaction boundaries, event publish/listener boundaries, and concise code references.
 ---
 
@@ -30,35 +30,35 @@ Use this structure. Transaction **start** and **commit** are separate boundary l
 [NO-TX] ─────────────────────────────────────
 
 Phase n. 업무 단계명
-    n-1. 비즈니스 정책/행위 설명.
-         -> FileName.java:line
+  n-1. 비즈니스 정책/행위 설명.
+       -> FileName.java:line
 
 [TX-1 BEGIN] ────────────────────────────────
 
 Phase n+1. 업무 단계명
-    (n+1)-1. 비즈니스 정책/행위 설명.
-             -> FileName.java:line
+  (n+1)-1. 비즈니스 정책/행위 설명.
+           -> FileName.java:line
 
 [EVENT PUBLISH: SomethingEvent]
-    -> FileName.java:line
+  -> FileName.java:line
 
 [EVENT LISTENER: SomethingEvent / BEFORE_COMMIT]
-    설명.
-    -> ListenerName.java:line
+  설명.
+  -> ListenerName.java:line
 
 [TX-1 COMMIT] ───────────────────────────────
 
 [EVENT LISTENER: SomethingEvent / AFTER_COMMIT]
-    설명.
-    -> ListenerName.java:line
+  설명.
+  -> ListenerName.java:line
 ```
 
 ## Rules
 
 - Use `Phase 1.`, `Phase 2.`, etc. for major business steps.
 - Use `1-1.`, `1-2.`, etc. for substeps.
-- Indent substeps by 4 spaces under each `Phase`.
-- Indent supporting code references one additional level under the substep.
+- Indent substeps by 2 spaces under each `Phase`.
+- Indent supporting code references one additional level (2 more spaces) under the substep, visually aligned with the substep body text.
 - Do not show full absolute file paths.
 - Prefer short references like `CartController.java:75`.
 - Use relative paths only when filenames are ambiguous, e.g. `adapter/in/web/api/CartController.java:75`.
@@ -90,13 +90,13 @@ Prefer:
 
 ```text
 Phase 2. 기존 장바구니 연속성 보장
-    2-1. 고객의 쿠키에 장바구니 식별자가 있으면 해당 장바구니를 계속 사용한다.
-         -> CreateGuestCartService.java:35
+  2-1. 고객의 쿠키에 장바구니 식별자가 있으면 해당 장바구니를 계속 사용한다.
+       -> CreateGuestCartService.java:35
 ```
 
 Avoid:
 
 ```text
 Phase 2. Service method branch execution
-    2-1. if cookieCartId != null && !cookieCartId.isBlank() executes and returns DTO.
+  2-1. if cookieCartId != null && !cookieCartId.isBlank() executes and returns DTO.
 ```
