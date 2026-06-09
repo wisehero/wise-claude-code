@@ -3,7 +3,7 @@
 ## Project
 - Claude Code 커스텀 스킬 레포지토리
 - 주 언어: 한국어 (커밋 메시지, 스킬 내용, 소통)
-- 스킬 위치: `skills/` 디렉토리
+- 스킬 위치: `claude/skills/` 디렉토리 (Codex용 사본은 `codex/skills/`)
 
 ## Skill 작성·수정·개선 규칙
 
