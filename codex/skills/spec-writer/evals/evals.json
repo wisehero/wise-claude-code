@@ -1,0 +1,55 @@
+{
+  "skill_name": "spec-writer",
+  "evals": [
+    {
+      "id": 0,
+      "name": "rich-payment",
+      "prompt": "결제 시스템 SRS 만들어줘. Spring Boot 3 + PostgreSQL 환경, PG는 Toss Payments, 초당 100건 처리 목표. 액터는 일반 사용자(결제자)·운영자(환불 처리)·정산팀이고, 핵심 기능은 결제·환불·정산이야. 환불은 부분 환불 지원하고 구매 후 30일까지. 정산 주기는 일별. 인증은 JWT. 응답 시간은 일반 결제 1초 이내, 대용량 정산 배치는 별도. 가용률 99.9%. 외부 시스템은 Toss Payments(REST), 슬랙 알림(웹훅), 사내 ERP(메시지 큐 RabbitMQ). 영수증/세금계산서는 사내 ERP가 발행. 데이터 보관은 결제 5년.",
+      "expected_output": "IEEE 830 형식의 SRS markdown 파일. v2.0.0은 0단계에서 비가역 결정 4건(데이터 모델·JWT 인증·Toss·RabbitMQ)을 명시 표면화하고, 환불 분기를 깊이 우선으로 펼쳐야 함. v1.4.0은 4단계 선형 진행으로 결과만 정리.",
+      "files": [],
+      "assertions": [
+        {"text": "파일명이 SRS_*_YYYYMMDD.md 컨벤션을 따른다 (영문 시스템명 + 날짜)", "type": "structural"},
+        {"text": "IEEE 830 6개 장(개요·전체설명·기능요구사항·비기능요구사항·인터페이스·부록)이 모두 존재한다", "type": "structural"},
+        {"text": "비가역 결정 항목(데이터 모델·JWT 인증·Toss PG·RabbitMQ)이 본문 어디에선가 명시적으로 표기된다 ('비가역', '되돌리기 어려운', 또는 0단계 결과 형태)", "type": "discriminating"},
+        {"text": "FR 항목들이 모두 동일한 표 형식(입력 데이터/기본 흐름/출력 데이터/예외 흐름 4섹션)을 따른다", "type": "structural"},
+        {"text": "환불 관련 FR이 부분 환불·30일 기한 등 사용자가 제공한 분기 결정을 정확히 반영한다", "type": "fidelity"},
+        {"text": "NFR 항목 모두에 측정 기준(수치)이 있다 — '빠르게' 같은 모호 표현 0건", "type": "core-rule"},
+        {"text": "사용자가 명시하지 않은 항목(예: 결제 수단 종류, 영수증 양식)은 [TBD]로 표시되고 6.2 미결사항 섹션에 기록된다", "type": "core-rule-anti-speculation"},
+        {"text": "마크다운 목차가 문서 상단에 존재하고 하위 섹션(1.1, 3.x 등)까지 포함한다", "type": "structural"}
+      ]
+    },
+    {
+      "id": 1,
+      "name": "vague-todo",
+      "prompt": "할 일 관리 앱 SRS 만들어줘. 일단 사이드 프로젝트고 자세한 건 잘 몰라. 사용자가 할 일을 만들고 완료 체크하는 정도면 돼. 그 외에는 알아서 적당히 잘 해줘. 비기능은 모르겠고, 기술 스택도 안 정했어. 팀 단위 공유 기능은 나중에 생각해.",
+      "expected_output": "v2.0.0은 '알아서/적당히' 답변을 룰 1로 차단 — 권장값을 명시 제시 후 동의 받거나 [TBD]로 처리. v1.4.0은 추측으로 NFR 기본값을 자동 채울 위험.",
+      "files": [],
+      "assertions": [
+        {"text": "[TBD] 마커가 본문에 5개 이상 등장한다 — 사용자가 '알아서/적당히/모르겠고/안 정했어'로 답한 항목들이 추측으로 채워지지 않았음", "type": "core-rule-anti-speculation"},
+        {"text": "6.2 미결 사항(TBD) 섹션에 표 형태로 미결 항목들이 정리되어 있다", "type": "structural"},
+        {"text": "기술 스택을 임의로 추측해 결정하지 않는다 — Java, Spring, React 등 사용자가 안 정한 스택을 추정값으로 박지 않음", "type": "core-rule-anti-speculation"},
+        {"text": "NFR 항목이 권장값 + 사용자 동의 필요 표기 또는 [TBD]로 처리된다 — 임의 수치 단정 없음", "type": "core-rule-anti-speculation"},
+        {"text": "팀 단위 공유 기능이 1.2 시스템 설명 '제외' 항목에 명시된다 (사용자가 '나중에 생각해'라고 함)", "type": "fidelity"},
+        {"text": "할 일 생성·완료 체크 핵심 FR은 표 형식으로 작성되어 있다", "type": "structural"},
+        {"text": "사용자가 '알아서'로 답한 항목에 대한 처리 방식(권장값 제시 + 동의 대기 또는 [TBD])이 본문 또는 변경 이력/주석에 명시적으로 기록된다", "type": "discriminating"}
+      ]
+    },
+    {
+      "id": 2,
+      "name": "branch-explosion",
+      "prompt": "스터디 모임 플랫폼 SRS 만들어줘. 사용자가 스터디 만들고 모집하는 거. 결제도 있어 (보증금 받고 출석률 따라 환급). 알림도 있고. 매칭 추천 기능도 있고. 채팅도 있고. 신고/제재도 있어. 기술 스택은 정해진 거 없어. 이 정도 정보로 시작해줘.",
+      "expected_output": "v2.0.0은 5개 분기 신호(결제/알림/매칭/채팅/신고)를 각각 깊이 우선으로 펼치고 미해결 노드는 [TBD]. v1.4.0은 카테고리 순서 진행으로 분기 깊이 얕음.",
+      "files": [],
+      "assertions": [
+        {"text": "5개 분기(결제/보증금·알림·매칭 추천·채팅·신고 제재) 모두에 대해 별도 FR 그룹 또는 FR 항목이 존재한다", "type": "discriminating"},
+        {"text": "결제 분기에 보증금·환급 정책(출석률 기반)·환급 시점·계산 방식 등 하위 결정 노드가 적어도 3개 이상 다뤄진다 (값 결정 또는 [TBD])", "type": "discriminating-depth"},
+        {"text": "알림 분기에 채널(이메일/푸시/인앱)·트리거 이벤트·사용자 설정 가능 여부 등 하위 결정 노드가 적어도 2개 이상 다뤄진다", "type": "discriminating-depth"},
+        {"text": "신고/제재 분기에 신고 대상·신고 처리 흐름·제재 종류 등 하위 결정 노드가 적어도 2개 이상 다뤄진다", "type": "discriminating-depth"},
+        {"text": "기술 스택을 임의 추측 없이 [TBD] 처리한다 (사용자가 '정해진 거 없어'라고 함)", "type": "core-rule-anti-speculation"},
+        {"text": "6.2 미결 사항 섹션에 분기별 미결 노드들이 표 형태로 정리된다 ([TBD] 항목이 5개 이상)", "type": "structural"},
+        {"text": "FR 항목 모두 표 형식(입력 데이터/기본 흐름/출력 데이터/예외 흐름)을 따른다", "type": "structural"},
+        {"text": "비기능 요구사항 NFR이 적어도 3개 카테고리 이상 정의된다 (성능·보안·기타)", "type": "structural"}
+      ]
+    }
+  ]
+}

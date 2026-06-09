@@ -156,7 +156,7 @@ facet 간 결과가 서로 모순되거나, 버전축에서 전환되거나, 비
 **docs-researcher 에이전트를 찾을 수 없는 경우**
 - 원인: `docs-researcher.md`가 설치되지 않았거나 Claude Code가 재시작되지 않아 로드되지 않음
 - 해결: 아래 두 경로 중 하나에 파일이 있는지 확인 후 Claude Code 재시작
-  - 레포-로컬 설치: `<repo>/agents/docs-researcher.md` (이 레포의 기본 위치)
+  - 레포-로컬 설치: `<repo>/claude/agents/docs-researcher.md` (이 레포의 기본 위치)
   - 글로벌 설치: `~/.claude/agents/docs-researcher.md`
 
 **context7 MCP가 응답하지 않는 경우**
