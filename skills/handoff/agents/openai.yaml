@@ -1,0 +1,7 @@
+interface:
+  display_name: "Handoff"
+  short_description: "Prepare Korean session handoffs"
+  default_prompt: "Use $handoff to prepare a Korean continuation-ready handoff for the next session."
+
+policy:
+  allow_implicit_invocation: true
