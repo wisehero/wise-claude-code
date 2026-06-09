@@ -2,9 +2,9 @@
 
 이 파일은 `code-analyzer` 스킬이 **Java 17+ / Spring Boot 2.7~3.x** 프로젝트를 분석할 때 참조한다. 레거시 Spring Framework(5.x) 패턴, Java 17 `record`/`var`·Jakarta EE 전환(`javax` → `jakarta`), Lombok 사용 프로젝트까지 포함한다.
 
-## Read 타이밍
+## 읽기 타이밍
 
-SKILL.md 1단계에서 언어 감지 후, 다음 중 하나 이상이면 이 파일을 Read한 뒤 2단계로 진행한다:
+SKILL.md 1단계에서 언어 감지 후, 다음 중 하나 이상이면 이 파일을 읽은 뒤 2단계로 진행한다:
 
 - `build.gradle` / `build.gradle.kts` / `pom.xml` 존재
 - `src/main/java/` 디렉터리 존재 + `.java` 파일 5개 이상
@@ -20,8 +20,8 @@ SKILL.md 1단계에서 언어 감지 후, 다음 중 하나 이상이면 이 파
 
 1. **`@SpringBootApplication` 클래스** — `public static void main(String[] args)`를 가진 단일 진입점. `*Application.java` 네이밍이 관례이지만 강제는 아님.
 2. **`*Controller` 클래스** — `@RestController` 또는 `@Controller`가 달린 HTTP 진입점. 실질적 분석 시작점은 여기다.
-3. **`@RequestMapping` / `@GetMapping` / `@PostMapping`** — 엔드포인트 URL 매핑. 이 애노테이션을 Grep해 URL → 메서드 매핑을 복원.
-4. **`@EventListener` / `@Scheduled` / `@KafkaListener`** — 비동기·스케줄·메시지 진입점. HTTP 밖의 진입점이므로 누락되지 않도록 별도 Grep.
+3. **`@RequestMapping` / `@GetMapping` / `@PostMapping`** — 엔드포인트 URL 매핑. 이 애노테이션을 `rg -n`으로 검색해 URL → 메서드 매핑을 복원.
+4. **`@EventListener` / `@Scheduled` / `@KafkaListener`** — 비동기·스케줄·메시지 진입점. HTTP 밖의 진입점이므로 누락되지 않도록 별도 검색한다.
 5. **`CommandLineRunner` / `ApplicationRunner` 빈** — 애플리케이션 기동 시 실행되는 초기화 훅.
 
 ### Spring Framework 5.x 레거시
@@ -59,11 +59,11 @@ Client → DispatcherServlet → Filter → Interceptor → Controller → (Vali
 
 ---
 
-## Grep 패턴 치트시트
+## 검색 패턴 치트시트
 
-Java/Spring 특화 패턴. SKILL.md 2단계의 일반 Grep 대신 사용한다.
+Java/Spring 특화 패턴. SKILL.md 2단계의 일반 검색 대신 사용한다.
 
-| 찾을 대상 | Grep 패턴 |
+| 찾을 대상 | `rg -n` 패턴 |
 |---|---|
 | 클래스/인터페이스/열거/record | `^(public \|abstract \|final )*(class \|interface \|enum \|record )` |
 | 메서드 (public/private/protected/package) | `^\s*(public \|private \|protected )?(static \|final \|abstract )?[A-Za-z<>\[\], ]+\s+[a-z][A-Za-z0-9_]*\s*\(` |
@@ -83,7 +83,7 @@ Java/Spring 특화 패턴. SKILL.md 2단계의 일반 Grep 대신 사용한다.
 | DI 생성자 | `public\s+[A-Z][A-Za-z0-9_]*\s*\(.*\)\s*\{` (클래스 이름과 동일한 메서드) |
 | Feign/WebClient 외부 호출 | `@FeignClient\|WebClient\.\|RestTemplate\.` |
 
-Grep 시 `javax.persistence` (레거시) vs `jakarta.persistence` (Spring Boot 3+)로 버전을 함께 확인한다.
+`rg -n` 검색 시 `javax.persistence` (레거시) vs `jakarta.persistence` (Spring Boot 3+)로 버전을 함께 확인한다.
 
 ---
 
@@ -129,7 +129,7 @@ Grep 시 `javax.persistence` (레거시) vs `jakarta.persistence` (Spring Boot 3
 
 - **`@Data`**는 equals/hashCode/toString을 자동 생성하는데, **JPA 엔티티에 붙이면 양방향 관계에서 StackOverflow 위험**. 엔티티에 `@Data`가 보이면 섹션 4에 기록.
 - **`@Builder`**는 모든 필드에 대한 빌더를 만든다. 필수/선택 필드 구분이 시그니처로 드러나지 않음.
-- **`@RequiredArgsConstructor`**: `final` 필드로 생성자 DI를 자동 생성. 생성자 시그니처가 코드상에 보이지 않아 Grep으로 찾을 때 주의.
+- **`@RequiredArgsConstructor`**: `final` 필드로 생성자 DI를 자동 생성. 생성자 시그니처가 코드상에 보이지 않아 검색으로 찾을 때 주의.
 
 ---
 

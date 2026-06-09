@@ -1,7 +1,8 @@
 ---
 name: business-flow-analyzer
-version: 1.2.0
 description: Use when the user asks to analyze an API, feature flow, business logic, or "what happens when this is called"; produce a Korean business-policy style flow report with Phase numbering, physical transaction boundaries, event publish/listener boundaries, and concise code references.
+metadata:
+  version: 1.2.0
 ---
 
 # Business Flow Analyzer

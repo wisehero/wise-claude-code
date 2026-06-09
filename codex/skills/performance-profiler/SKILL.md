@@ -1,16 +1,19 @@
 ---
 name: performance-profiler
-version: 1.2.0
 description: Java/Spring **전용** 성능 병목 정적 분석 스킬. `.java` 파일과 Spring/JPA/MyBatis 기반 코드에서 N+1 쿼리, 비효율적 알고리즘, 메모리 낭비, 느린 API 응답 원인을 찾고 최적화 방안을 제시한다. "성능 분석해줘", "느린 부분 찾아줘", "성능 개선", "최적화 해줘", "N+1 문제 확인", "쿼리 성능", "메모리 누수", "API 느림", "응답 시간 개선" 같은 요청에 사용. "이 API 왜 느려?", "주문 목록이 버벅여", "DB 많이 때리는지 봐줘", "트랜잭션 안에서 외부 호출 괜찮아?", "대량 데이터에서 터질 부분 있어?" 같은 간접적 성능 우려에도 반드시 사용한다. Java/Spring이 아닌 언어(PHP·Python·JavaScript·Go·Ruby 등)에는 사용하지 않는다.
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
+metadata:
+  version: 1.2.1
 ---
 
 # Performance Profiler
 
 Java/Spring 코드를 정적 분석하여 성능 병목을 식별하고 최적화 방안을 제시하는 스킬.
+
+## Codex 실행 환경 지침
+
+- 파일 목록 탐색은 `rg --files`, 내용 검색은 `rg -n`, 부분 읽기는 `sed -n`을 우선 사용한다.
+- `Read`, `Grep`, `Glob` 같은 Claude Code 도구명은 개념적 단계로 해석하고 현재 세션의 Codex 도구로 대응한다.
+- 정적 분석 스킬이므로 사용자가 요청하지 않는 한 파일을 수정하지 않는다.
 
 ## When to Use
 

@@ -2,9 +2,9 @@
 
 이 파일은 `code-analyzer` 스킬이 PHP 프로젝트를 분석할 때 참조한다. 레거시 **PHP 5.6** 패턴과 모던 **PHP 8.3 + Laravel 10** 컨벤션을 모두 다룬다. 두 스타일이 한 저장소에 혼재할 수 있다는 전제로 작성되었다.
 
-## Read 타이밍
+## 읽기 타이밍
 
-SKILL.md 1단계에서 언어 감지 후, 다음 중 하나 이상이면 이 파일을 Read한 뒤 2단계로 진행한다:
+SKILL.md 1단계에서 언어 감지 후, 다음 중 하나 이상이면 이 파일을 읽은 뒤 2단계로 진행한다:
 
 - `composer.json` 파일 존재
 - `artisan` 스크립트 존재 (Laravel)
@@ -22,7 +22,7 @@ SKILL.md 1단계에서 언어 감지 후, 다음 중 하나 이상이면 이 파
 1. `public/index.php` — front controller. 모든 HTTP 요청이 여기서 시작.
 2. `bootstrap/app.php` — 애플리케이션 인스턴스 생성
 3. `app/Http/Kernel.php` — 글로벌/그룹 미들웨어 스택 정의
-4. **`routes/web.php`, `routes/api.php`, `routes/console.php`** — 실질적 진입점. URL → 컨트롤러 메서드 매핑이 여기 있다. 분석 시 이 파일들부터 먼저 Read하라.
+4. **`routes/web.php`, `routes/api.php`, `routes/console.php`** — 실질적 진입점. URL → 컨트롤러 메서드 매핑이 여기 있다. 분석 시 이 파일들부터 먼저 읽어라.
 5. `app/Console/Kernel.php` — Artisan 명령 + 스케줄러
 
 ### PHP 5.6 레거시
@@ -59,11 +59,11 @@ Route → Middleware → Controller → Form Request → Service → Model (Eloq
 
 ---
 
-## Grep 패턴 치트시트
+## 검색 패턴 치트시트
 
-PHP 특화 패턴. SKILL.md 2단계의 기본 Grep 패턴을 **대체**한다. 아래 테이블에 없는 범주(예: 기본 의존성 패턴 중 PHP에 해당하는 것)만 SKILL.md 기본 패턴으로 **보충**한다.
+PHP 특화 패턴. SKILL.md 2단계의 기본 검색 패턴을 **대체**한다. 아래 테이블에 없는 범주(예: 기본 의존성 패턴 중 PHP에 해당하는 것)만 SKILL.md 기본 패턴으로 **보충**한다.
 
-| 찾을 대상 | Grep 패턴 |
+| 찾을 대상 | `rg -n` 패턴 |
 |---|---|
 | 클래스/트레이트/인터페이스 | `class \|trait \|interface ` |
 | 네임스페이스/import | `^namespace \|^use ` |
@@ -78,7 +78,7 @@ PHP 특화 패턴. SKILL.md 2단계의 기본 Grep 패턴을 **대체**한다. �
 | PHP 5.6 include | `require(_once)?\(\|include(_once)?\(` |
 | 매직 메서드 | `function __(call\|get\|set\|construct\|invoke)` |
 
-Grep 시 `composer.json`에서 자동 감지한 PHP 버전에 따라 레거시 패턴을 포함할지 결정한다.
+`rg -n` 검색 시 `composer.json`에서 자동 감지한 PHP 버전에 따라 레거시 패턴을 포함할지 결정한다.
 
 ---
 
@@ -92,14 +92,14 @@ Grep 시 `composer.json`에서 자동 감지한 PHP 버전에 따라 레거시 �
 - **Events/Listeners는 간접 호출.** `event(new OrderPlaced())`는 명시적 메서드 호출이 아니다. 매핑은 `app/Providers/EventServiceProvider.php`의 `$listen` 배열에서 확인.
 - **Queued Jobs는 비동기.** `dispatch(new SendEmailJob())`는 큐에 쌓일 뿐 즉시 실행되지 않는다. 시퀀스 다이어그램에서 비동기임을 주석이나 별도 participant로 표시.
 - **Form Request 검증은 자동.** 컨트롤러 시그니처가 `store(StoreOrderRequest $request)`라면 진입 시점에 이미 검증이 끝난 상태. 검증 규칙은 해당 Request 클래스의 `rules()`에서 읽는다.
-- **Facade는 실제로는 Service Container 호출.** `DB::table()`은 static 호출처럼 보이지만 내부적으로 `Illuminate\Support\Facades\DB` → container resolve. 원한다면 실제 구현체를 Grep으로 추적.
+- **Facade는 실제로는 Service Container 호출.** `DB::table()`은 static 호출처럼 보이지만 내부적으로 `Illuminate\Support\Facades\DB` → container resolve. 원한다면 실제 구현체를 `rg -n`으로 추적.
 
 ### PHP 5.6 레거시
 
 - **전역 상태가 데이터 흐름의 일부.** `$_SESSION`, `$GLOBALS`, `global $var`는 함수 시그니처에 드러나지 않는 입출력이다. 데이터 흐름 분석 시 파라미터뿐 아니라 전역 접근도 반드시 추적해야 한다.
 - **`require_once` 체인이 곧 의존성 그래프.** PSR-4 autoload가 없다면 파일 상단의 require 구문을 따라가는 것이 유일한 의존성 추적 방법.
-- **절차적 + OO 혼재.** 클래스 밖의 함수와 클래스 메서드가 같은 파일에 섞여 있을 수 있다. Grep으로 `class `와 `function `을 모두 수집해야 함수 목록이 누락되지 않는다.
-- **매직 메서드는 정적 분석의 사각지대.** `__call`, `__get`, `__set`은 호출을 동적으로 가로채므로 Grep으로 호출처를 찾을 수 없다. 발견되면 "매직 메서드 `__call` 존재 — 동적 디스패치" 정도로만 언급하고, 런타임 분석은 생략.
+- **절차적 + OO 혼재.** 클래스 밖의 함수와 클래스 메서드가 같은 파일에 섞여 있을 수 있다. `rg -n`으로 `class `와 `function `을 모두 수집해야 함수 목록이 누락되지 않는다.
+- **매직 메서드는 정적 분석의 사각지대.** `__call`, `__get`, `__set`은 호출을 동적으로 가로채므로 검색으로 호출처를 찾을 수 없다. 발견되면 "매직 메서드 `__call` 존재 — 동적 디스패치" 정도로만 언급하고, 런타임 분석은 생략.
 - **타입 힌트 부재.** PHP 5.6은 scalar type hint가 없다. 메서드 시그니처만 봐서는 파라미터 타입을 알 수 없으니, 본문의 실제 사용 패턴(`->method()`, `strlen($x)`)으로 추정.
 - **에러 핸들링 패턴 주의.** try/catch뿐 아니라 `trigger_error`, `set_error_handler`, 또는 반환값으로 false를 던지는 C 스타일 패턴이 혼재할 수 있다.
 

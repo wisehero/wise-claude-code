@@ -1,17 +1,24 @@
 ---
 name: junit-test-writer
-version: 1.2.0
 description: Java/Spring **전용** JUnit 5 테스트 코드 작성 스킬. 단위 테스트, 슬라이스 테스트(@WebMvcTest, @DataJpaTest), 통합 테스트(@SpringBootTest)를 작성한다. "테스트 코드 작성해줘", "~에 대한 테스트 만들어줘", "단위 테스트 추가해줘", "통합 테스트 작성", "테스트 케이스 추가", "커버리지 높여줘", "테스트 없는 코드에 테스트 추가" 같은 요청에 사용. **Java가 아닌 언어(PHP·Python·JavaScript·Ruby 등)는 범위 밖** — 해당 언어로 테스트 요청이 들어오면 Step 1에서 즉시 거절한다. Kotlin 프로젝트는 기본 거절, 사용자 명시 opt-in 시에만 JUnit 5 + MockK/Kotest 혼용으로 진행.
-allowed-tools: [Read, Write, Edit, Glob, Grep, Bash]
+metadata:
+  version: 1.2.1
 ---
 
 # JUnit Test Writer
 
 Java/Spring Boot 프로젝트 전용 JUnit 5 테스트 코드 작성 스킬.
 
+## Codex 실행 환경 지침
+
+- 파일 목록 탐색은 `rg --files`, 내용 검색은 `rg -n`, 부분 읽기는 `sed -n`을 우선 사용한다.
+- 파일 수정은 Codex의 파일 편집 도구를 사용하고, 실제 작성 전 프리뷰/확인 프로토콜을 따른다.
+- 빌드/테스트 실행은 셸 명령으로 수행한다. 의존성 다운로드나 네트워크 실패가 발생하면 Codex 승인 절차에 따라 재시도한다.
+- `Read`, `Write`, `Edit`, `Glob`, `Grep`, `Bash` 같은 Claude Code 도구명은 개념적 단계로 해석한다.
+
 > **언어 가드**: 이 스킬은 **Java/Spring** 프로젝트에만 적용된다. PHP·Python·JavaScript·Ruby 등은 Step 1의 첫 서브스텝에서 거절한다. Kotlin은 기본 거절·opt-in 허용. 자세한 판정 기준은 아래 Step 1과 트러블슈팅의 "비대상 언어 감지" 절을 본다.
 >
-> **편집 경로 안전장치**: 이 스킬은 테스트 파일을 **Write(신규)·Edit(기존 파일 추가)** 한다. 기존 테스트가 있거나 프로덕션 코드까지 함께 수정해야 하는 경우에는 Step 6.5의 **프리뷰 → 확인 응답 프로토콜**을 반드시 거친다. 즉흥 생성 금지.
+> **편집 경로 안전장치**: 이 스킬은 테스트 파일을 **신규 생성 또는 기존 파일 편집**한다. 기존 테스트가 있거나 프로덕션 코드까지 함께 수정해야 하는 경우에는 Step 6.5의 **프리뷰 → 확인 응답 프로토콜**을 반드시 거친다. 즉흥 생성 금지.
 
 ## 테스트 작성 워크플로우
 
@@ -23,7 +30,7 @@ Java/Spring Boot 프로젝트 전용 JUnit 5 테스트 코드 작성 스킬.
 
 1. **대상 파일 확장자가 `.java`인가?** (Kotlin `.kt`는 기본 거절 — 트러블슈팅 "Kotlin opt-in" 참고)
 2. **프로젝트 루트에 `build.gradle`, `build.gradle.kts`, `pom.xml` 중 하나가 존재하는가?**
-3. **빌드 파일에서 JUnit(4 또는 5) 또는 `spring-boot-starter-test` 의존성이 식별되는가?** (Glob/Grep으로 확인)
+3. **빌드 파일에서 JUnit(4 또는 5) 또는 `spring-boot-starter-test` 의존성이 식별되는가?** (`rg --files`/`rg -n`으로 확인)
 
 판정 매트릭스:
 
@@ -48,16 +55,16 @@ Step 1.0을 통과한 경우에만 수행한다:
 
 **Step 1.2 — 기존 테스트 탐색과 충돌 결정 규칙**
 
-Glob으로 `src/test/**/<ClassName>Test.java` 탐색. 결과에 따라 다음 결정 규칙을 적용한다:
+`rg --files`로 `src/test/**/<ClassName>Test.java`를 탐색한다. 결과에 따라 다음 결정 규칙을 적용한다:
 
 | 상황 | 결정 규칙 |
 |---|---|
 | 기존 테스트 **없음** | 새 파일 생성. 컨벤션은 하단 "컨벤션 요약"과 `references/conventions.md`의 canonical 스타일(`should_*_when_*` / AssertJ / BDDMockito / `@Nested`)을 따른다. |
-| 기존 테스트 **있고 canonical 스타일** | 동일 파일에 **Edit으로 추가** — 기존 스타일을 그대로 유지. |
+| 기존 테스트 **있고 canonical 스타일** | 동일 파일에 편집으로 추가 — 기존 스타일을 그대로 유지. |
 | 기존 테스트 **있으나 non-canonical 스타일** (예: 한글 메서드명, 수동 `mock()`, JUnit assertions) | **파일 내부 일관성 원칙**: 해당 파일 안에서는 기존 스타일을 그대로 답습해 추가한다. 새 파일/새 클래스로 분리할 때만 canonical을 쓴다. 단, 이 결정은 **반드시 Step 6.5 프리뷰 단계에서 사용자에게 명시적으로 보고**하고 확인받는다. |
 | 기존 테스트 파일 내부에 두 스타일이 **이미 혼재** | 신규 추가분은 다수파 스타일을 따른다. 모호하면 Step 6.5에서 사용자에게 선택지를 제시. |
 
-**금지**: 기존 파일을 Write로 덮어쓰지 않는다. 반드시 Edit만 사용한다. 기존 메서드를 삭제하거나 리네임하지 않는다(리팩토링은 refactor-advisor의 영역).
+**금지**: 기존 파일을 덮어쓰지 않는다. 반드시 부분 편집만 사용한다. 기존 메서드를 삭제하거나 리네임하지 않는다(리팩토링은 refactor-advisor의 영역).
 
 ### Step 2: 테스트 전략 결정
 
@@ -154,13 +161,13 @@ void should_throwException_when_emptyItems() {
 }
 ```
 
-### Step 6.5: 프리뷰 & 확인 응답 프로토콜 (Write/Edit 직전에 필수)
+### Step 6.5: 프리뷰 & 확인 응답 프로토콜 (파일 생성/편집 직전에 필수)
 
-테스트 파일을 실제로 Write 또는 Edit 하기 **직전에** 다음 4단계를 거친다. study-helper v1.3.0 / refactor-advisor v1.2.0이 확립한 canonical 안전장치 패턴을 따른다.
+테스트 파일을 실제로 생성 또는 편집하기 **직전에** 다음 4단계를 거친다. study-helper v1.4.0 / refactor-advisor v1.3.1이 확립한 canonical 안전장치 패턴을 따른다.
 
 **① 프리뷰 생성**
 
-사용자에게 다음 형식의 요약을 터미널에 출력한다:
+사용자에게 다음 형식의 요약을 채팅에 출력한다:
 
 ```
 ## 테스트 작성 프리뷰 — <ClassName>Test
@@ -204,15 +211,15 @@ void should_throwException_when_emptyItems() {
 | `진행` | 프리뷰 전체를 그대로 적용 |
 | `1,3,5만 진행` (번호 선별) | 지정한 번호만 작성 |
 | `Fixture는 mock으로` 같은 한 줄 수정 | 해당 항목만 반영 후 재프리뷰 |
-| `취소` | Write/Edit 하지 않고 종료 |
+| `취소` | 파일 생성/편집 없이 종료 |
 
 **모호한 동의는 전체 승인으로 해석하지 않는다.** "응", "오케이", "좋아", "ㅇㅇ" 같은 응답이 오면 위 4가지 키워드 중 하나로 명시해 달라고 **한 번만** 재요청한다. 재요청에도 모호하면 `취소`로 처리한다.
 
 **③ 편집 적용**
 
-- 신규 파일: `Write`
-- 기존 파일 추가: `Edit` (old_string을 파일 말미의 `}` 마지막 줄로 잡거나, 기존 `@Nested` 블록 직후로 잡아 안전하게 삽입)
-- **절대 기존 파일을 Write로 덮어쓰지 않는다.** 기존 메서드·import·클래스 선언을 보존한다.
+- 신규 파일: Codex 파일 편집 도구로 생성
+- 기존 파일 추가: Codex 파일 편집 도구로 부분 삽입 (삽입 지점은 파일 말미의 `}` 마지막 줄 또는 기존 `@Nested` 블록 직후)
+- **절대 기존 파일을 덮어쓰지 않는다.** 기존 메서드·import·클래스 선언을 보존한다.
 
 **④ 사후 요약**
 
@@ -228,7 +235,7 @@ void should_throwException_when_emptyItems() {
 
 ### Step 7: 테스트 실행 및 검증
 
-테스트 작성 후 반드시 실행하여 결과를 확인한다. 이 Step은 Bash 권한을 사용한다(`allowed-tools`에 선언되어 있음).
+테스트 작성 후 반드시 셸 명령으로 실행하여 결과를 확인한다.
 
 **실행 경로 결정**:
 
@@ -439,7 +446,7 @@ class OrderIntegrationTest {
 3. **Step 2~4**: 핵심 비즈니스 로직(주문 생성, 취소) 우선, 단위 테스트(MockitoExtension), Instancio 유무에 따라 Fixture 전략 결정
 4. **Step 5~6**: Given-When-Then + 정상/예외/경계값 작성안 구성
 5. **Step 6.5 프리뷰**: 작성할 테스트 케이스 목록을 사용자에게 보여주고 `진행`/`번호 선별`/`취소` 대기
-6. **Step 6.5 적용**: 사용자 응답에 따라 Write
+6. **Step 6.5 적용**: 사용자 응답에 따라 파일 생성
 7. **Step 7**: `./gradlew test --tests com.example.order.OrderServiceTest` 실행, 실패 시 대응 프로토콜
 
 **사용자**: "이 Controller에 대한 통합 테스트 만들어줘"
@@ -546,4 +553,4 @@ opt-in 승인 시: JUnit 5 runner는 유지하되 Mockito → MockK, AssertJ →
 | 테스트 대상 클래스의 비즈니스 로직 이해가 선행되어야 함 | **code-analyzer** | "코드 분석해줘" |
 | 프로덕션 코드 버그로 판정된 Step 7 실패 (본 스킬은 프로덕션 수정 금지) | refactor-advisor 또는 수동 수정 | Step 7 "프로덕션 코드 버그" 분기 참조 |
 
-**원칙**: 본 스킬이 프로덕션 코드를 수정하지 않는다. 테스트 파일(`src/test/**`)만 Write/Edit 한다. 프로덕션 파일 수정이 필요하면 반드시 사용자에게 에스컬레이션 후 별도 작업으로 분리한다.
+**원칙**: 본 스킬이 프로덕션 코드를 수정하지 않는다. 테스트 파일(`src/test/**`)만 생성/편집한다. 프로덕션 파일 수정이 필요하면 반드시 사용자에게 에스컬레이션 후 별도 작업으로 분리한다.
